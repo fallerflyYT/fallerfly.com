@@ -884,38 +884,50 @@
     fit();
     window.addEventListener('resize', fit);
 
+    var LIFE = 320; // ms each point stays in the line
+
     window.addEventListener('pointermove', function (e) {
-      var pt = { x: e.clientX, y: e.clientY };
-      // interpolate between events so fast flicks leave a continuous trail
-      if (lastPt) {
-        var dx = pt.x - lastPt.x, dy = pt.y - lastPt.y;
-        var dist = Math.sqrt(dx * dx + dy * dy);
-        var steps = Math.min(6, Math.floor(dist / 9));
-        for (var i = 1; i <= steps; i++) {
-          dots.push({ x: lastPt.x + dx * i / (steps + 1), y: lastPt.y + dy * i / (steps + 1), life: 1 });
-        }
-      }
-      dots.push({ x: pt.x, y: pt.y, life: 1 });
-      lastPt = pt;
+      dots.push({ x: e.clientX, y: e.clientY, t: performance.now() });
       if (!running) { running = true; requestAnimationFrame(draw); }
     });
 
     function draw() {
+      var now = performance.now();
+      while (dots.length && now - dots[0].t > LIFE) { dots.shift(); }
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-      for (var i = dots.length - 1; i >= 0; i--) {
-        var d = dots[i];
-        d.life -= 0.045;
-        if (d.life <= 0) { dots.splice(i, 1); continue; }
-        var r = 5.5 * d.life;
-        var g = ctx.createRadialGradient(d.x, d.y, 0, d.x, d.y, r * 3);
-        g.addColorStop(0, 'rgba(255,255,255,' + (0.5 * d.life) + ')');
-        g.addColorStop(0.4, 'rgba(255,255,255,' + (0.12 * d.life) + ')');
-        g.addColorStop(1, 'rgba(255,255,255,0)');
-        ctx.fillStyle = g;
+
+      if (dots.length > 1) {
+        ctx.strokeStyle = '#FFFFFF';
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
+        // solid white line through every point, tapering toward the tail
+        for (var i = 1; i < dots.length; i++) {
+          var age = (now - dots[i].t) / LIFE;          // 0 = fresh, 1 = expiring
+          ctx.lineWidth = Math.max(1, 4.5 * (1 - age));
+          ctx.beginPath();
+          var mx = (dots[i - 1].x + dots[i].x) / 2;
+          var my = (dots[i - 1].y + dots[i].y) / 2;
+          if (i === 1) { ctx.moveTo(dots[0].x, dots[0].y); } else {
+            var pmx = (dots[i - 2].x + dots[i - 1].x) / 2;
+            var pmy = (dots[i - 2].y + dots[i - 1].y) / 2;
+            ctx.moveTo(pmx, pmy);
+            ctx.quadraticCurveTo(dots[i - 1].x, dots[i - 1].y, mx, my);
+            ctx.stroke();
+            continue;
+          }
+          ctx.lineTo(mx, my);
+          ctx.stroke();
+        }
+        // connect the freshest midpoint to the live cursor position
+        var last = dots[dots.length - 1];
+        var prev = dots[dots.length - 2];
+        ctx.lineWidth = 4.5;
         ctx.beginPath();
-        ctx.arc(d.x, d.y, r * 3, 0, Math.PI * 2);
-        ctx.fill();
+        ctx.moveTo((prev.x + last.x) / 2, (prev.y + last.y) / 2);
+        ctx.lineTo(last.x, last.y);
+        ctx.stroke();
       }
+
       if (dots.length > 0) { requestAnimationFrame(draw); } else { running = false; }
     }
   }
