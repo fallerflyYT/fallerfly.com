@@ -272,6 +272,15 @@
     transition: transform 0.9s cubic-bezier(0.65, 0, 0.35, 1), opacity 0.55s ease-in-out;
     cursor: pointer;
   }
+  .car-card {
+    position: absolute;
+    inset: 0;
+    transform-style: preserve-3d;
+    transition: transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .car-item:hover .car-card { transform: scale(1.05); }
+  .car-item:not(.is-side):hover .sl { filter: brightness(1.08); }
+  .car-item.is-side:hover .sl { filter: brightness(0.62); }
   .car-item .sl {
     position: absolute;
     top: 0;
@@ -279,12 +288,12 @@
     width: 33.6%;
     background-size: 300% 100%;
     background-repeat: no-repeat;
-    transition: filter 0.9s ease;
+    transition: filter 0.7s ease;
   }
-  /* three hinged slices give each card a ~10° convex bend (edges away from viewer) */
-  .car-item .sl-l { left: 0; transform-origin: right center; transform: rotateY(-5deg); background-position: 0% 0; border-radius: var(--r-lg) 0 0 var(--r-lg); }
+  /* flat 2D cards — no bend */
+  .car-item .sl-l { left: 0; background-position: 0% 0; border-radius: var(--r-lg) 0 0 var(--r-lg); }
   .car-item .sl-m { left: 33.2%; background-position: 50% 0; }
-  .car-item .sl-r { left: 66.4%; transform-origin: left center; transform: rotateY(5deg); background-position: 100% 0; border-radius: 0 var(--r-lg) var(--r-lg) 0; }
+  .car-item .sl-r { left: 66.4%; background-position: 100% 0; border-radius: 0 var(--r-lg) var(--r-lg) 0; }
   .car-item.is-side .sl { filter: brightness(0.45); }
   .car-item.is-hidden { pointer-events: none; }
   .car-badge {
@@ -985,7 +994,7 @@
     var carTitle = document.getElementById('carTitle');
     var carCap = document.getElementById('carCap');
     var watchBtn = document.getElementById('watchBtn');
-    var STEP = 22;      // degrees between neighbors on the cylinder
+    var STEP = 20;      // degrees between neighbors on the cylinder
     var RADIUS = 1500;  // px — the massive offscreen circle
     var cur = 0;
     var N = VIDS.length;
@@ -994,18 +1003,21 @@
     VIDS.forEach(function (v, i) {
       var el = document.createElement('div');
       el.className = 'car-item';
+      var card = document.createElement('div');
+      card.className = 'car-card';
       ['sl-l', 'sl-m', 'sl-r'].forEach(function (c) {
         var s = document.createElement('div');
         s.className = 'sl ' + c;
         s.style.backgroundImage = 'url(' + v.src + ')';
-        el.appendChild(s);
+        card.appendChild(s);
       });
       if (v.badge) {
         var b = document.createElement('span');
         b.className = 'car-badge';
         b.textContent = v.badge;
-        el.appendChild(b);
+        card.appendChild(b);
       }
+      el.appendChild(card);
       el.addEventListener('click', function () {
         var o = norm(i - cur);
         if (o === 0) { window.open('https://www.youtube.com/watch?v=' + v.id, '_blank'); }
