@@ -234,13 +234,42 @@
     border-radius: var(--r-pill);
     box-shadow: 0 4px 18px -4px rgba(226, 35, 26, 0.8);
   }
-  .feat-title { font-size: clamp(30px, 4.2vw, 54px); margin-top: 20px; }
+  .feat-title { font-size: clamp(30px, 4.2vw, 54px); margin-top: 20px; text-align: center; }
   .hero .lede {
     font-size: 17px;
     color: var(--muted);
     max-width: 52ch;
-    margin: 20px 0 26px;
+    margin: 14px auto 26px;
+    text-align: center;
   }
+  .live-row { display: flex; justify-content: center; margin-top: 16px; }
+  .live-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: var(--r-pill);
+    padding: 11px 20px;
+  }
+  .live-pill .rec {
+    width: 11px;
+    height: 11px;
+    border-radius: 50%;
+    background: var(--red-hot);
+    box-shadow: 0 0 10px rgba(255, 59, 48, 0.9);
+    animation: livepulse 1.4s ease-in-out infinite;
+    flex: none;
+  }
+  @keyframes livepulse { 50% { opacity: 0.25; } }
+  @media (prefers-reduced-motion: reduce) { .live-pill .rec { animation: none; } }
+  .live-pill b {
+    font-family: 'Anton', sans-serif;
+    font-weight: 400;
+    font-size: 20px;
+    font-variant-numeric: tabular-nums;
+  }
+  .live-pill span { font-size: 12px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
   .hero .lede b { color: var(--text); }
   .cta-row { display: flex; gap: 12px; flex-wrap: wrap; }
   .hero .cta-row { justify-content: center; align-items: center; }
@@ -519,7 +548,7 @@
   <div class="wrap nav">
     <a class="brand" href="#home" data-nav="home">
       <img src="assets/pfp-new.png" alt="Fallerfly avatar" />
-      <span class="name">Faller<em>fly</em></span>
+      <span class="name">Fallerfly</span>
     </a>
     <nav class="tabbar" aria-label="Site tabs">
       <button data-tab="home" class="active">Home</button>
@@ -538,17 +567,22 @@
     <div class="wrap home-grid">
       <div>
         <div class="hero">
-          <p class="eyebrow">You either fall or fly · Minecraft PVP</p>
           <a class="feat" href="https://www.youtube.com/watch?v=jngDioLAp0I" target="_blank" rel="noopener" aria-label="Watch the newest upload: Marlow's Downfall — Minecraft Animation">
             <img fetchpriority="high" decoding="async" src="assets/th-marlow-hd.jpg" alt="Marlow's Downfall Minecraft Animation thumbnail" />
             <span class="feat-badge">▶ New upload</span>
           </a>
           <h1 class="display feat-title">Marlow's <span class="red">Downfall</span></h1>
-          <p class="lede">A full Minecraft animation — the newest drop on the channel, 62K views in two weeks.</p>
+          <p class="lede">A Minecraft Action Animation</p>
           <div class="cta-row">
             <a class="btn btn-red" href="https://www.youtube.com/watch?v=jngDioLAp0I" target="_blank" rel="noopener">Watch now</a>
             <button class="btn btn-dark" data-nav="youtube">All videos</button>
-            <div class="bubble"><b id="subCount">11,499</b><span>Live subscribers</span></div>
+          </div>
+          <div class="live-row">
+            <div class="live-pill" title="Live subscriber count">
+              <span class="rec" aria-label="Live"></span>
+              <b id="subCount">11,499</b>
+              <span>subscribers</span>
+            </div>
           </div>
         </div>
 
@@ -686,31 +720,13 @@
       <div class="dc-hero">
         <div>
           <p class="eyebrow">Community</p>
-          <h2 class="display">The hive, but<br>for <span style="color:var(--red-hot)">PVPers.</span></h2>
-          <p>Duels, tier test scrims, clip reviews, and the full custom emote set. If you want to run <b>send duels</b> or get matched against people at your level, this is where it happens.</p>
+          <h2 class="display">More than<br>just <span style="color:var(--red-hot)">PVPers.</span></h2>
+          <p>Constant <b>Valorant</b>, <b>Fortnite</b>, and <b>Roblox</b> alongside the Minecraft grind — this server is for way more than one game.</p>
           <div class="cta-row" style="margin-top:22px">
             <a class="btn btn-red" href="https://discord.gg/fallerfly" target="_blank" rel="noopener">Join the Discord</a>
           </div>
         </div>
         <div class="dc-art"><img src="assets/pfp-new.png" alt="Fallerfly character art" /></div>
-      </div>
-
-      <div class="dc-perks">
-        <div class="perk">
-          <div class="ic"><svg viewBox="0 0 24 24"><path d="M6 2l12 12-2.5 2.5L3.5 4.5 6 2zm14.5 14.5L22 18l-4 4-1.5-1.5 4-4zM2 18l4 4 1.5-1.5L3.5 16.5 2 18z"/></svg></div>
-          <h3>Send duels</h3>
-          <p>Drop your IGN, get sent. Duel requests run straight from the server — the same ones that end up in the Send Duels series.</p>
-        </div>
-        <div class="perk">
-          <div class="ic"><svg viewBox="0 0 24 24"><path d="M12 12a5 5 0 100-10 5 5 0 000 10zm-9 9a9 9 0 0118 0H3z"/></svg></div>
-          <h3>Custom emotes</h3>
-          <p>The full Fallerfly emote set — happy, laugh, sus, sad, angry, and drunk — plus friend-made art you won't see anywhere else.</p>
-        </div>
-        <div class="perk">
-          <div class="ic"><svg viewBox="0 0 24 24"><path d="M21 6h-3.5l-1-2h-9l-1 2H3v14h18V6zm-9 11a4.5 4.5 0 110-9 4.5 4.5 0 010 9z"/></svg></div>
-          <h3>Clip reviews</h3>
-          <p>Post your fights and get honest feedback on rotations, aim, and combos — from people who actually tier test.</p>
-        </div>
       </div>
 
       <section class="block">
@@ -813,7 +829,7 @@
       <div class="faq-list">
         <details class="faq" open>
           <summary>Business or collab inquiries?</summary>
-          <div class="a">All business inquiries can be sent to <b><a href="mailto:fallerfly@gmail.com" style="color:var(--red-hot)">fallerfly@gmail.com</a></b>. Serious inquiries only — duel requests go in the Discord duels channel, not the inbox.</div>
+          <div class="a">All business inquiries can be sent to <b><a href="mailto:fallerfly@gmail.com" style="color:var(--red-hot)">fallerfly@gmail.com</a></b>. Serious inquiries only.</div>
         </details>
       </div>
     </div>
@@ -824,10 +840,11 @@
   <div class="wrap foot">
     <div class="socials">
       <a href="https://www.youtube.com/@Fallerfly" target="_blank" rel="noopener">▶ YouTube</a>
+      <a href="https://www.tiktok.com/@fallerfly" target="_blank" rel="noopener">♪ TikTok</a>
       <a href="https://discord.gg/fallerfly" target="_blank" rel="noopener">◆ Discord</a>
       <a href="https://namemc.com/profile/Fallerfly" target="_blank" rel="noopener">■ NameMC</a>
     </div>
-    <span class="fine">© 2026 Fallerfly · You either fall or fly.</span>
+    <span class="fine">© 2026 Fallerfly</span>
   </div>
 </footer>
 
