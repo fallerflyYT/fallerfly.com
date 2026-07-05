@@ -72,6 +72,7 @@
     font-size: 16px;
     line-height: 1.6;
     -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;   /* carousel side cards may reach past the viewport edge */
   }
 
   .wrap { max-width: 1140px; margin: 0 auto; padding: 0 22px; }
@@ -110,11 +111,16 @@
     border-bottom: 1px solid var(--line);
   }
   .nav {
-    display: flex;
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
     align-items: center;
     gap: 16px;
     height: 72px;
+    max-width: none;   /* full-bleed: pin brand and subscribe to the screen edges */
   }
+  .nav .brand { justify-self: start; }
+  .nav .tabbar { justify-self: center; }
+  .nav .sub-cta { justify-self: end; }
   .brand {
     display: flex;
     align-items: center;
@@ -140,7 +146,6 @@
   .tabbar {
     display: flex;
     gap: 6px;
-    margin-left: auto;
     background: var(--panel);
     border: 1px solid var(--line);
     border-radius: var(--r-pill);
@@ -178,12 +183,10 @@
     transition: transform 0.15s ease, background 0.15s ease;
   }
   .sub-cta:hover { background: var(--red-hot); transform: translateY(-1px); }
-  @media (prefers-reduced-motion: reduce) { .sub-cta:hover { transform: none; } }
 
   @media (max-width: 860px) {
-    .nav { height: auto; flex-wrap: wrap; padding: 12px 0; }
-    .tabbar { margin-left: 0; order: 3; width: 100%; justify-content: space-between; overflow-x: auto; }
-    .sub-cta { margin-left: auto; }
+    .nav { display: flex; height: auto; flex-wrap: wrap; padding: 12px 0; justify-content: space-between; }
+    .tabbar { order: 3; width: 100%; justify-content: space-between; overflow-x: auto; }
   }
 
   /* ============ tabs ============ */
@@ -218,11 +221,22 @@
     overflow: hidden;
     border: 1px solid var(--line);
     box-shadow: var(--card-shadow);
-    transition: transform 0.16s ease, border-color 0.16s ease, box-shadow 0.16s ease;
+    transition: transform 0.7s cubic-bezier(0.22, 1, 0.36, 1), border-color 0.16s ease, box-shadow 0.7s cubic-bezier(0.22, 1, 0.36, 1);
   }
-  .feat:hover { transform: translateY(-3px); border-color: var(--red); box-shadow: var(--glow); }
-  @media (prefers-reduced-motion: reduce) { .feat:hover { transform: none; } }
-  .feat img { width: 100%; aspect-ratio: 16/9; object-fit: cover; display: block; }
+  .feat:hover {
+    transform: translateY(-3px) scale(1.04);
+    z-index: 2;
+    border-color: var(--red);
+    box-shadow: 0 0 36px rgba(226, 35, 26, 0.55), 0 16px 52px -10px rgba(226, 35, 26, 0.6);
+  }
+  .feat img {
+    width: 100%;
+    aspect-ratio: 16/9;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .feat:hover img { transform: scale(1.05); }
   .feat-badge {
     position: absolute;
     top: 14px;
@@ -234,7 +248,72 @@
     border-radius: var(--r-pill);
     box-shadow: 0 4px 18px -4px rgba(226, 35, 26, 0.8);
   }
+  /* 3D video carousel — cards ride a huge offscreen cylinder */
+  .car-stage {
+    position: relative;
+    margin-top: 18px;
+    height: clamp(190px, 38vw, 330px);
+    perspective: 1300px;
+  }
+  .car-ring {
+    position: absolute;
+    inset: 0;
+    transform-style: preserve-3d;
+    transform: translateZ(-1500px);
+  }
+  .car-item {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 56%;
+    aspect-ratio: 16 / 9;
+    transform-style: preserve-3d;
+    /* ease-in-out: cards gently accelerate, glide, then gently settle */
+    transition: transform 0.9s cubic-bezier(0.65, 0, 0.35, 1), opacity 0.55s ease-in-out;
+    cursor: pointer;
+  }
+  .car-item .sl {
+    position: absolute;
+    top: 0;
+    height: 100%;
+    width: 33.6%;
+    background-size: 300% 100%;
+    background-repeat: no-repeat;
+    transition: filter 0.9s ease;
+  }
+  /* three hinged slices give each card a ~10° convex bend (edges away from viewer) */
+  .car-item .sl-l { left: 0; transform-origin: right center; transform: rotateY(-5deg); background-position: 0% 0; border-radius: var(--r-lg) 0 0 var(--r-lg); }
+  .car-item .sl-m { left: 33.2%; background-position: 50% 0; }
+  .car-item .sl-r { left: 66.4%; transform-origin: left center; transform: rotateY(5deg); background-position: 100% 0; border-radius: 0 var(--r-lg) var(--r-lg) 0; }
+  .car-item.is-side .sl { filter: brightness(0.45); }
+  .car-item.is-hidden { pointer-events: none; }
+  .car-badge {
+    position: absolute;
+    top: 14px;
+    left: 16px;
+    background: var(--red);
+    color: #FFF5F4;
+    font: 700 13px/1 'Instrument Sans', sans-serif;
+    padding: 9px 16px;
+    border-radius: var(--r-pill);
+    box-shadow: 0 4px 18px -4px rgba(226, 35, 26, 0.8);
+    transform: translateZ(8px);
+    pointer-events: none;
+  }
+  @media (max-width: 700px) {
+    .car-item { width: 76%; }
+    .car-stage { height: 46vw; }
+  }
+
   .feat-title { font-size: clamp(30px, 4.2vw, 54px); margin-top: 20px; text-align: center; }
+  #carTitle, #carCap { transition: opacity 0.35s ease; }
+  #carTitle {
+    /* fixed two-line box so short and long titles never shift the layout */
+    min-height: 2em;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
   .hero .lede {
     font-size: 17px;
     color: var(--muted);
@@ -362,15 +441,23 @@
     border-radius: var(--r-lg);
     overflow: hidden;
     box-shadow: var(--card-shadow);
-    transition: transform 0.16s ease, border-color 0.16s ease, box-shadow 0.16s ease;
+    position: relative;
+    transition: transform 0.7s cubic-bezier(0.22, 1, 0.36, 1), border-color 0.16s ease, box-shadow 0.7s cubic-bezier(0.22, 1, 0.36, 1);
   }
   .vid:hover {
-    transform: translateY(-3px);
+    transform: translateY(-3px) scale(1.06);
+    z-index: 2;
     border-color: var(--red);
-    box-shadow: var(--glow);
+    box-shadow: 0 0 30px rgba(226, 35, 26, 0.5), 0 12px 44px -12px rgba(226, 35, 26, 0.6);
   }
-  @media (prefers-reduced-motion: reduce) { .vid:hover { transform: none; } }
-  .vid img { width: 100%; aspect-ratio: 16/9; object-fit: cover; display: block; }
+  .vid img {
+    width: 100%;
+    aspect-ratio: 16/9;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.7s cubic-bezier(0.22, 1, 0.36, 1), filter 0.7s ease;
+  }
+  .vid:hover img { transform: scale(1.07); filter: brightness(1.08); }
   .vid .vm { padding: 14px 16px 16px; }
   .vid .vm h3 { margin: 0 0 4px; font-size: 15px; font-weight: 700; line-height: 1.35; color: var(--text); }
   .vid .vm p { margin: 0; font-size: 12.5px; font-weight: 600; color: var(--muted); }
@@ -391,9 +478,8 @@
   .emote:hover {
     transform: translateY(-4px) scale(1.06);
     border-color: var(--red);
-    box-shadow: 0 0 22px rgba(226, 35, 26, 0.45);
+    box-shadow: 0 0 32px rgba(226, 35, 26, 0.7);
   }
-  @media (prefers-reduced-motion: reduce) { .emote:hover { transform: none; } }
 
   /* ============ YOUTUBE tab ============ */
   .banner-card {
@@ -404,7 +490,14 @@
     box-shadow: var(--card-shadow);
     position: relative;
   }
-  .banner-card img { width: 100%; display: block; aspect-ratio: 1400 / 330; object-fit: cover; }
+  .banner-card img {
+    width: 100%;
+    display: block;
+    aspect-ratio: 1400 / 330;
+    object-fit: cover;
+    transition: transform 0.9s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .banner-card:hover img { transform: scale(1.04); }
   .yt-head {
     display: flex;
     align-items: center;
@@ -441,6 +534,11 @@
   .dc-art img {
     width: min(240px, 70%);
     filter: drop-shadow(0 18px 34px rgba(226, 35, 26, 0.35));
+    transition: transform 0.7s cubic-bezier(0.22, 1, 0.36, 1), filter 0.7s ease;
+  }
+  .dc-art img:hover {
+    transform: scale(1.06) translateY(-4px);
+    filter: drop-shadow(0 26px 44px rgba(226, 35, 26, 0.55));
   }
   .dc-perks {
     display: grid;
@@ -567,14 +665,13 @@
     <div class="wrap home-grid">
       <div>
         <div class="hero">
-          <a class="feat" href="https://www.youtube.com/watch?v=jngDioLAp0I" target="_blank" rel="noopener" aria-label="Watch the newest upload: Marlow's Downfall — Minecraft Animation">
-            <img fetchpriority="high" decoding="async" src="assets/th-marlow-hd.jpg" alt="Marlow's Downfall Minecraft Animation thumbnail" />
-            <span class="feat-badge">▶ New upload</span>
-          </a>
-          <h1 class="display feat-title">Marlow's <span class="red">Downfall</span></h1>
-          <p class="lede">A Minecraft Action Animation</p>
+          <div class="car-stage" id="carStage" aria-label="Latest videos — rotating carousel">
+            <div class="car-ring" id="carRing"></div>
+          </div>
+          <h1 class="display feat-title" id="carTitle">Marlow's Downfall</h1>
+          <p class="lede" id="carCap">A Minecraft Action Animation</p>
           <div class="cta-row">
-            <a class="btn btn-red" href="https://www.youtube.com/watch?v=jngDioLAp0I" target="_blank" rel="noopener">Watch now</a>
+            <a class="btn btn-red" id="watchBtn" href="https://www.youtube.com/watch?v=jngDioLAp0I" target="_blank" rel="noopener">Watch now</a>
             <button class="btn btn-dark" data-nav="youtube">All videos</button>
           </div>
           <div class="live-row">
@@ -872,6 +969,97 @@
   });
   var initial = (location.hash || '#home').slice(1);
   show(initial, false);
+
+  /* ---------- 3D latest-videos carousel ---------- */
+  var carStage = document.getElementById('carStage');
+  if (carStage) {
+    /* only uploads above 10K views ride the carousel */
+    var VIDS = [
+      { id: 'jngDioLAp0I', t: "Marlow's Downfall", cap: 'A Minecraft Action Animation', src: 'assets/th-marlow-hd.jpg', badge: '▶ New upload' },
+      { id: 'MkxO6UABmAE', t: 'I Bought EVERY Cosmetic to Lag Players', cap: '14K views · 8 months ago', src: 'assets/th-cosmetic.jpg' },
+      { id: '2lvXkbegjNY', t: 'I Tier Tested In Every Gamemode', cap: '455K views · 10 months ago', src: 'assets/th-tier.jpg' },
+      { id: 'rFRGraTSyBI', t: 'Hitsync Sword Combos', cap: '16K views · 11 months ago', src: 'assets/th-sword.jpg' },
+      { id: 'McFTlEGQh4g', t: 'I Asked Sharpness To Teach Me', cap: '35K views · 11 months ago', src: 'assets/th-sharp.jpg' }
+    ];
+    var carRing = document.getElementById('carRing');
+    var carTitle = document.getElementById('carTitle');
+    var carCap = document.getElementById('carCap');
+    var watchBtn = document.getElementById('watchBtn');
+    var STEP = 22;      // degrees between neighbors on the cylinder
+    var RADIUS = 1500;  // px — the massive offscreen circle
+    var cur = 0;
+    var N = VIDS.length;
+    var carHover = false;
+
+    VIDS.forEach(function (v, i) {
+      var el = document.createElement('div');
+      el.className = 'car-item';
+      ['sl-l', 'sl-m', 'sl-r'].forEach(function (c) {
+        var s = document.createElement('div');
+        s.className = 'sl ' + c;
+        s.style.backgroundImage = 'url(' + v.src + ')';
+        el.appendChild(s);
+      });
+      if (v.badge) {
+        var b = document.createElement('span');
+        b.className = 'car-badge';
+        b.textContent = v.badge;
+        el.appendChild(b);
+      }
+      el.addEventListener('click', function () {
+        var o = norm(i - cur);
+        if (o === 0) { window.open('https://www.youtube.com/watch?v=' + v.id, '_blank'); }
+        else { cur = i; layout(); fadeSwap(); }
+      });
+      v.el = el;
+      carRing.appendChild(el);
+    });
+
+    function norm(d) {
+      d = ((d % N) + N) % N;
+      if (d > N / 2) { d -= N; }
+      return d;
+    }
+
+    function layout() {
+      VIDS.forEach(function (v, i) {
+        var o = norm(i - cur);
+        var visible = Math.abs(o) <= 1;
+        var clamped = Math.max(-2, Math.min(2, o));
+        v.el.style.transform = 'translate(-50%, -50%) rotateY(' + (clamped * STEP) + 'deg) translateZ(' + RADIUS + 'px)';
+        v.el.style.opacity = visible ? 1 : 0;
+        v.el.classList.toggle('is-hidden', !visible);
+        v.el.classList.toggle('is-side', Math.abs(o) === 1);
+      });
+    }
+
+    function setText() {
+      carTitle.textContent = VIDS[cur].t;
+      carCap.textContent = VIDS[cur].cap;
+      watchBtn.href = 'https://www.youtube.com/watch?v=' + VIDS[cur].id;
+    }
+
+    var fadeTimer = null;
+    function fadeSwap() {
+      carTitle.style.opacity = '0';
+      carCap.style.opacity = '0';
+      clearTimeout(fadeTimer);
+      fadeTimer = setTimeout(function () {
+        setText();
+        carTitle.style.opacity = '1';
+        carCap.style.opacity = '1';
+      }, 360);
+    }
+
+    layout();
+    setText();
+
+    carStage.addEventListener('mouseenter', function () { carHover = true; });
+    carStage.addEventListener('mouseleave', function () { carHover = false; });
+    setInterval(function () {
+      if (!carHover && !document.hidden) { cur = (cur + 1) % N; layout(); fadeSwap(); }
+    }, 4000);
+  }
 
   /* ---------- live subscriber count ---------- */
   var subEl = document.getElementById('subCount');
