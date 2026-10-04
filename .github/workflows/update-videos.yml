@@ -8,7 +8,7 @@ on:
     - cron: '*/15 * * * *'   # GitHub runs this roughly every 15 minutes
   workflow_dispatch:
   push:
-    branches: [main, claude/live-youtube-videos]
+    branches: [main]
     paths: [scripts/update_videos.py, .github/workflows/update-videos.yml]
 
 permissions:

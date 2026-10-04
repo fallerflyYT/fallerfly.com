@@ -1093,7 +1093,7 @@
         i.textContent = fmtCount(d.channel.subscribers) + ' subscribers';
         meta.appendChild(i);
       }
-      if (d.channel.videos) { meta.appendChild(document.createTextNode(' · ' + d.channel.videos + ' videos')); }
+      meta.appendChild(document.createTextNode(' · ' + d.videos.length + ' videos'));
     }
   }
 
@@ -1113,7 +1113,7 @@
   function carouselList(d) {
     var latest = d.videos[0];
     var fresh = latest.published && Date.now() - Date.parse(latest.published) < 30 * 86400000;
-    var list = [{ id: latest.id, t: latest.title, cap: caption(latest), badge: fresh ? '▶ New upload' : null }];
+    var list = [{ id: latest.id, t: latest.title, cap: caption(latest), badge: fresh ? '▶ New upload' : '▶ Latest upload' }];
     byViews(d.videos).forEach(function (v) {
       if (v.id !== latest.id && v.views >= 10000) { list.push({ id: v.id, t: v.title, cap: caption(v) }); }
     });
