@@ -15,8 +15,8 @@ jobs:
             "https://livecounts.xyz/api/youtube-live-subscriber-count/live/$C" \
             "https://api.livecounts.io/youtube-live-subscriber-counter/stats/$C" \
             "https://ests.sctools.org/api/get/$C" ; do
-            echo "=== $u"
-            curl -sS -m 20 -D - -H 'Origin: https://fallerfly.com' -A 'Mozilla/5.0' "$u" | grep -iE '^HTTP|access-control-allow-origin|^\{|^\[' | cut -c1-600
+            out=$(curl -sS -m 20 -D - -H 'Origin: https://fallerfly.com' -A 'Mozilla/5.0' "$u" 2>&1 | grep -iE '^HTTP|access-control-allow-origin|^\{|^\[|curl' | cut -c1-500 | tr '\r\n' '  ')
+            echo "::notice title=$u::$out"
           done
           echo "=== youtube page"
-          curl -sS -m 20 -A 'Mozilla/5.0' -H 'Accept-Language: en' "https://www.youtube.com/channel/$C" | grep -oE '"[0-9.]+K? subscribers"|subscriberCountText[^}]{0,200}' | head -5
+          curl -sS -m 20 -A 'Mozilla/5.0' -H 'Accept-Language: en' "https://www.youtube.com/channel/$C" | grep -oE '"[0-9.]+K? subscribers"|subscriberCountText[^}]{0,200}' | head -3 | tr '\n' ' ' | sed 's/^/::notice title=yt::/'
