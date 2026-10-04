@@ -1,0 +1,22 @@
+name: probe
+on:
+  push:
+    branches: [claude/sub-count-probe]
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          C=UCA-OVXXVRktMJ5tAbRMQonw
+          for u in \
+            "https://mixerno.space/api/youtube-channel-counter/user/$C" \
+            "https://backend.mixerno.space/api/youtube/estv3/$C" \
+            "https://api.socialcounts.org/youtube-live-subscriber-count/$C" \
+            "https://livecounts.xyz/api/youtube-live-subscriber-count/live/$C" \
+            "https://api.livecounts.io/youtube-live-subscriber-counter/stats/$C" \
+            "https://ests.sctools.org/api/get/$C" ; do
+            echo "=== $u"
+            curl -sS -m 20 -D - -H 'Origin: https://fallerfly.com' -A 'Mozilla/5.0' "$u" | grep -iE '^HTTP|access-control-allow-origin|^\{|^\[' | cut -c1-600
+          done
+          echo "=== youtube page"
+          curl -sS -m 20 -A 'Mozilla/5.0' -H 'Accept-Language: en' "https://www.youtube.com/channel/$C" | grep -oE '"[0-9.]+K? subscribers"|subscriberCountText[^}]{0,200}' | head -5
