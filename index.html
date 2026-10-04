@@ -519,6 +519,19 @@
   .yt-head .who p { margin: 4px 0 0; color: var(--muted); font-weight: 600; font-size: 14px; }
   .yt-head .who p i { color: var(--red-hot); font-style: normal; }
   .yt-head .sub-cta { margin-left: auto; font-size: 15px; padding: 14px 26px; }
+  .sort-row { display: flex; gap: 8px; margin: -12px 0 22px; }
+  .sort-row[hidden] { display: none; }
+  .sort-row button {
+    font: 700 14px/1 'Instrument Sans', sans-serif;
+    color: var(--muted);
+    background: var(--panel);
+    border: 1px solid var(--line);
+    padding: 9px 16px;
+    border-radius: var(--r-pill);
+    cursor: pointer;
+  }
+  .sort-row button:hover { border-color: var(--red); color: var(--text); }
+  .sort-row button.active { color: var(--red-hot); border-color: var(--red); }
   @media (max-width: 640px) { .yt-head .sub-cta { margin-left: 0; } }
 
   /* ============ DISCORD tab ============ */
@@ -697,7 +710,7 @@
             <h2 class="display">Most popular</h2>
             <button class="more" data-nav="youtube">All videos →</button>
           </div>
-          <div class="vid-grid">
+          <div class="vid-grid" id="popGrid">
             <a class="vid" href="https://www.youtube.com/watch?v=2lvXkbegjNY" target="_blank" rel="noopener">
               <img loading="lazy" decoding="async" src="assets/th-tier.jpg" alt="I Tier Tested In Every Gamemode thumbnail" />
               <div class="vm"><h3>I Tier Tested In Every Gamemode</h3><p><i>▶</i> 455K views</p></div>
@@ -763,11 +776,15 @@
         <img src="assets/pfp-new.png" alt="Fallerfly avatar" />
         <div class="who">
           <h2 class="display">Fallerfly</h2>
-          <p>@Fallerfly · <i>11.7K subscribers</i> · 70 videos</p>
+          <p id="ytMeta">@Fallerfly · <i>11.7K subscribers</i> · 70 videos</p>
         </div>
         <a class="sub-cta" href="https://www.youtube.com/@Fallerfly?sub_confirmation=1" target="_blank" rel="noopener">Subscribe on YouTube</a>
       </div>
-      <div class="vid-grid">
+      <div class="sort-row" id="ytSort" hidden>
+        <button data-sort="latest" class="active">Latest</button>
+        <button data-sort="popular">Popular</button>
+      </div>
+      <div class="vid-grid" id="ytGrid">
         <a class="vid" href="https://www.youtube.com/watch?v=2lvXkbegjNY" target="_blank" rel="noopener">
           <img loading="lazy" decoding="async" src="assets/th-tier.jpg" alt="I Tier Tested In Every Gamemode thumbnail" />
           <div class="vm"><h3>I Tier Tested In Every Gamemode</h3><p><i>▶</i> 455K views · 10 months ago</p></div>
@@ -979,99 +996,244 @@
   var initial = (location.hash || '#home').slice(1);
   show(initial, false);
 
-  /* ---------- 3D latest-videos carousel ---------- */
-  var carStage = document.getElementById('carStage');
-  if (carStage) {
-    /* only uploads above 10K views ride the carousel */
-    var VIDS = [
-      { id: 'jngDioLAp0I', t: "Marlow's Downfall", cap: 'A Minecraft Action Animation', src: 'assets/th-marlow-hd.jpg', badge: '▶ New upload' },
-      { id: 'MkxO6UABmAE', t: 'I Bought EVERY Cosmetic to Lag Players', cap: '14K views · 8 months ago', src: 'assets/th-cosmetic.jpg' },
-      { id: '2lvXkbegjNY', t: 'I Tier Tested In Every Gamemode', cap: '455K views · 10 months ago', src: 'assets/th-tier.jpg' },
-      { id: 'rFRGraTSyBI', t: 'Hitsync Sword Combos', cap: '16K views · 11 months ago', src: 'assets/th-sword.jpg' },
-      { id: 'McFTlEGQh4g', t: 'I Asked Sharpness To Teach Me', cap: '35K views · 11 months ago', src: 'assets/th-sharp.jpg' }
-    ];
-    var carRing = document.getElementById('carRing');
-    var carTitle = document.getElementById('carTitle');
-    var carCap = document.getElementById('carCap');
-    var watchBtn = document.getElementById('watchBtn');
-    var STEP = 20;      // degrees between neighbors on the cylinder
-    var RADIUS = 1500;  // px — the massive offscreen circle
-    var cur = 0;
-    var N = VIDS.length;
-    var carHover = false;
+  /* hand-written fallback for when the live data can't load */
+  var FALLBACK_VIDS = [
+    { id: 'jngDioLAp0I', t: "Marlow's Downfall", cap: 'A Minecraft Action Animation', src: 'assets/th-marlow-hd.jpg', badge: '▶ New upload' },
+    { id: 'MkxO6UABmAE', t: 'I Bought EVERY Cosmetic to Lag Players', cap: '14K views · 8 months ago', src: 'assets/th-cosmetic.jpg' },
+    { id: '2lvXkbegjNY', t: 'I Tier Tested In Every Gamemode', cap: '455K views · 10 months ago', src: 'assets/th-tier.jpg' },
+    { id: 'rFRGraTSyBI', t: 'Hitsync Sword Combos', cap: '16K views · 11 months ago', src: 'assets/th-sword.jpg' },
+    { id: 'McFTlEGQh4g', t: 'I Asked Sharpness To Teach Me', cap: '35K views · 11 months ago', src: 'assets/th-sharp.jpg' }
+  ];
 
-    VIDS.forEach(function (v, i) {
-      var el = document.createElement('div');
-      el.className = 'car-item';
-      var card = document.createElement('div');
-      card.className = 'car-card';
-      ['sl-l', 'sl-m', 'sl-r'].forEach(function (c) {
-        var s = document.createElement('div');
-        s.className = 'sl ' + c;
-        s.style.backgroundImage = 'url(' + v.src + ')';
-        card.appendChild(s);
-      });
-      if (v.badge) {
-        var b = document.createElement('span');
-        b.className = 'car-badge';
-        b.textContent = v.badge;
-        card.appendChild(b);
-      }
-      el.appendChild(card);
-      el.addEventListener('click', function () {
-        var o = norm(i - cur);
-        if (o === 0) { window.open('https://www.youtube.com/watch?v=' + v.id, '_blank'); }
-        else { cur = i; layout(); fadeSwap(); }
-      });
-      v.el = el;
-      carRing.appendChild(el);
-    });
+  /* ---------- live YouTube data ----------
+     .github/workflows/update-videos.yml refreshes this file from the channel
+     every ~15 minutes. If it can't load, the hand-written HTML stays put. */
+  var DATA_URL = 'https://raw.githubusercontent.com/fallerflyyt/fallerfly.com/data/videos.json';
+  var ytData = null;
 
-    function norm(d) {
-      d = ((d % N) + N) % N;
-      if (d > N / 2) { d -= N; }
-      return d;
-    }
-
-    function layout() {
-      VIDS.forEach(function (v, i) {
-        var o = norm(i - cur);
-        var visible = Math.abs(o) <= 1;
-        var clamped = Math.max(-2, Math.min(2, o));
-        v.el.style.transform = 'translate(-50%, -50%) rotateY(' + (clamped * STEP) + 'deg) translateZ(' + RADIUS + 'px)';
-        v.el.style.opacity = visible ? 1 : 0;
-        v.el.classList.toggle('is-hidden', !visible);
-        v.el.classList.toggle('is-side', Math.abs(o) === 1);
-      });
-    }
-
-    function setText() {
-      carTitle.textContent = VIDS[cur].t;
-      carCap.textContent = VIDS[cur].cap;
-      watchBtn.href = 'https://www.youtube.com/watch?v=' + VIDS[cur].id;
-    }
-
-    var fadeTimer = null;
-    function fadeSwap() {
-      carTitle.style.opacity = '0';
-      carCap.style.opacity = '0';
-      clearTimeout(fadeTimer);
-      fadeTimer = setTimeout(function () {
-        setText();
-        carTitle.style.opacity = '1';
-        carCap.style.opacity = '1';
-      }, 360);
-    }
-
-    layout();
-    setText();
-
-    carStage.addEventListener('mouseenter', function () { carHover = true; });
-    carStage.addEventListener('mouseleave', function () { carHover = false; });
-    setInterval(function () {
-      if (!carHover && !document.hidden) { cur = (cur + 1) % N; layout(); fadeSwap(); }
-    }, 4000);
+  function loadData() {
+    if (!window.fetch) { return Promise.resolve(null); }
+    var timeout = new Promise(function (res) { setTimeout(function () { res(null); }, 3500); });
+    var req = fetch(DATA_URL + '?t=' + Math.floor(Date.now() / 60000), { cache: 'no-store' })
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (d) { return d && d.videos && d.videos.length ? d : null; })
+      .catch(function () { return null; });
+    return Promise.race([req, timeout]);
   }
+
+  function fmtCount(n) {
+    if (n == null) { return ''; }
+    function trim(x) { return x.toFixed(1).replace(/\.0$/, ''); }
+    if (n < 1000) { return String(n); }
+    if (n < 10000) { return trim(Math.floor(n / 100) / 10) + 'K'; }
+    if (n < 1e6) { return Math.floor(n / 1000) + 'K'; }
+    if (n < 1e7) { return trim(Math.floor(n / 1e5) / 10) + 'M'; }
+    return Math.floor(n / 1e6) + 'M';
+  }
+
+  function ago(iso) {
+    if (!iso) { return ''; }
+    var s = (Date.now() - Date.parse(iso)) / 1000;
+    var units = [['year', 31536000], ['month', 2592000], ['week', 604800], ['day', 86400], ['hour', 3600], ['minute', 60]];
+    for (var i = 0; i < units.length; i++) {
+      var n = Math.floor(s / units[i][1]);
+      if (n >= 1) { return n + ' ' + units[i][0] + (n > 1 ? 's' : '') + ' ago'; }
+    }
+    return 'just now';
+  }
+
+  function thumb(id, size) { return 'https://i.ytimg.com/vi/' + id + '/' + size + '.jpg'; }
+  function views(v) { return fmtCount(v.views) + ' views'; }
+  function caption(v) { return [views(v), ago(v.published)].filter(Boolean).join(' · '); }
+  function byViews(list) { return list.slice().sort(function (a, b) { return (b.views || 0) - (a.views || 0); }); }
+
+  function card(v, withAge) {
+    var a = document.createElement('a');
+    a.className = 'vid';
+    a.href = 'https://www.youtube.com/watch?v=' + v.id;
+    a.target = '_blank';
+    a.rel = 'noopener';
+    var img = document.createElement('img');
+    img.loading = 'lazy';
+    img.decoding = 'async';
+    img.src = thumb(v.id, 'hq720');
+    img.alt = v.title + ' thumbnail';
+    img.onerror = function () { img.onerror = null; img.src = thumb(v.id, 'mqdefault'); };
+    var vm = document.createElement('div');
+    vm.className = 'vm';
+    var h3 = document.createElement('h3');
+    h3.textContent = v.title;
+    var p = document.createElement('p');
+    var i = document.createElement('i');
+    i.textContent = '▶';
+    p.appendChild(i);
+    p.appendChild(document.createTextNode(' ' + (withAge ? caption(v) : views(v))));
+    vm.appendChild(h3);
+    vm.appendChild(p);
+    a.appendChild(img);
+    a.appendChild(vm);
+    return a;
+  }
+
+  function fill(grid, list, withAge) {
+    if (!grid) { return; }
+    grid.textContent = '';
+    list.forEach(function (v) { grid.appendChild(card(v, withAge)); });
+  }
+
+  var ytSort = 'latest';
+  function renderGrids(d) {
+    fill(document.getElementById('popGrid'), byViews(d.videos).slice(0, 3), false);
+    fill(document.getElementById('ytGrid'), ytSort === 'popular' ? byViews(d.videos) : d.videos, true);
+    var meta = document.getElementById('ytMeta');
+    if (meta && d.channel) {
+      meta.textContent = '@Fallerfly · ';
+      if (d.channel.subscribers) {
+        var i = document.createElement('i');
+        i.textContent = fmtCount(d.channel.subscribers) + ' subscribers';
+        meta.appendChild(i);
+      }
+      if (d.channel.videos) { meta.appendChild(document.createTextNode(' · ' + d.channel.videos + ' videos')); }
+    }
+  }
+
+  var sortRow = document.getElementById('ytSort');
+  if (sortRow) {
+    sortRow.querySelectorAll('button').forEach(function (b) {
+      b.addEventListener('click', function () {
+        ytSort = b.dataset.sort;
+        sortRow.querySelectorAll('button').forEach(function (x) { x.classList.toggle('active', x === b); });
+        if (ytData) { renderGrids(ytData); }
+      });
+    });
+  }
+
+  /* newest upload leads (badged while under 30 days old), then every
+     other upload above 10K views, most viewed first */
+  function carouselList(d) {
+    var latest = d.videos[0];
+    var fresh = latest.published && Date.now() - Date.parse(latest.published) < 30 * 86400000;
+    var list = [{ id: latest.id, t: latest.title, cap: caption(latest), badge: fresh ? '▶ New upload' : null }];
+    byViews(d.videos).forEach(function (v) {
+      if (v.id !== latest.id && v.views >= 10000) { list.push({ id: v.id, t: v.title, cap: caption(v) }); }
+    });
+    list.forEach(function (v) {
+      v.src = ['maxresdefault', 'hq720', 'mqdefault'].map(function (s) { return 'url(' + thumb(v.id, s) + ')'; }).join(', ');
+    });
+    return list;
+  }
+
+  /* ---------- 3D latest-videos carousel ---------- */
+  var VIDS = [];
+  function buildCarousel(list) {
+    var carStage = document.getElementById('carStage');
+    if (carStage) {
+      VIDS = list;
+      var carRing = document.getElementById('carRing');
+      var carTitle = document.getElementById('carTitle');
+      var carCap = document.getElementById('carCap');
+      var watchBtn = document.getElementById('watchBtn');
+      var STEP = 20;      // degrees between neighbors on the cylinder
+      var RADIUS = 1500;  // px — the massive offscreen circle
+      var cur = 0;
+      var N = VIDS.length;
+      var carHover = false;
+
+      VIDS.forEach(function (v, i) {
+        var el = document.createElement('div');
+        el.className = 'car-item';
+        var card = document.createElement('div');
+        card.className = 'car-card';
+        ['sl-l', 'sl-m', 'sl-r'].forEach(function (c) {
+          var s = document.createElement('div');
+          s.className = 'sl ' + c;
+          s.style.backgroundImage = /^url\(/.test(v.src) ? v.src : 'url(' + v.src + ')';
+          card.appendChild(s);
+        });
+        if (v.badge) {
+          var b = document.createElement('span');
+          b.className = 'car-badge';
+          b.textContent = v.badge;
+          card.appendChild(b);
+        }
+        el.appendChild(card);
+        el.addEventListener('click', function () {
+          var o = norm(i - cur);
+          if (o === 0) { window.open('https://www.youtube.com/watch?v=' + v.id, '_blank'); }
+          else { cur = i; layout(); fadeSwap(); }
+        });
+        v.el = el;
+        carRing.appendChild(el);
+      });
+
+      function norm(d) {
+        d = ((d % N) + N) % N;
+        if (d > N / 2) { d -= N; }
+        return d;
+      }
+
+      function layout() {
+        VIDS.forEach(function (v, i) {
+          var o = norm(i - cur);
+          var visible = Math.abs(o) <= 1;
+          var clamped = Math.max(-2, Math.min(2, o));
+          v.el.style.transform = 'translate(-50%, -50%) rotateY(' + (clamped * STEP) + 'deg) translateZ(' + RADIUS + 'px)';
+          v.el.style.opacity = visible ? 1 : 0;
+          v.el.classList.toggle('is-hidden', !visible);
+          v.el.classList.toggle('is-side', Math.abs(o) === 1);
+        });
+      }
+
+      function setText() {
+        carTitle.textContent = VIDS[cur].t;
+        carCap.textContent = VIDS[cur].cap;
+        watchBtn.href = 'https://www.youtube.com/watch?v=' + VIDS[cur].id;
+      }
+
+      var fadeTimer = null;
+      function fadeSwap() {
+        carTitle.style.opacity = '0';
+        carCap.style.opacity = '0';
+        clearTimeout(fadeTimer);
+        fadeTimer = setTimeout(function () {
+          setText();
+          carTitle.style.opacity = '1';
+          carCap.style.opacity = '1';
+        }, 360);
+      }
+
+      layout();
+      setText();
+
+      carStage.addEventListener('mouseenter', function () { carHover = true; });
+      carStage.addEventListener('mouseleave', function () { carHover = false; });
+      setInterval(function () {
+        if (!carHover && !document.hidden) { cur = (cur + 1) % N; layout(); fadeSwap(); }
+      }, 4000);
+    }
+  }
+
+  loadData().then(function (d) {
+    ytData = d;
+    buildCarousel(d ? carouselList(d) : FALLBACK_VIDS);
+    if (d) {
+      renderGrids(d);
+      if (sortRow) { sortRow.hidden = false; }
+    }
+  });
+
+  /* re-check every 5 minutes so open tabs pick up new numbers */
+  setInterval(function () {
+    loadData().then(function (d) {
+      if (!d) { return; }
+      ytData = d;
+      renderGrids(d);
+      VIDS.forEach(function (v) {
+        var m = d.videos.filter(function (x) { return x.id === v.id; })[0];
+        if (m) { v.cap = caption(m); }
+      });
+    });
+  }, 300000);
 
   /* ---------- live subscriber count ---------- */
   var subEl = document.getElementById('subCount');
