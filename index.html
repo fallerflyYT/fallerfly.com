@@ -699,7 +699,7 @@
           <div class="live-row">
             <div class="live-pill" title="Live subscriber count">
               <span class="rec" aria-label="Live"></span>
-              <b id="subCount">11,499</b>
+              <b id="subCount">13,010</b>
               <span>subscribers</span>
             </div>
           </div>
@@ -1213,7 +1213,7 @@
     }
   }
 
-  loadData().then(function (d) {
+  var dataReady = loadData().then(function (d) {
     ytData = d;
     buildCarousel(d ? carouselList(d) : FALLBACK_VIDS);
     if (d) {
@@ -1235,22 +1235,52 @@
     });
   }, 300000);
 
-  /* ---------- live subscriber count ---------- */
+  /* ---------- live subscriber count ----------
+     YouTube only publishes a rounded figure (13K -> 13,000), so the live
+     number comes from counter sites that estimate between YouTube's updates.
+     Each source is tried in order; an estimate that strays more than 5% from
+     YouTube's own count (from videos.json) is ignored as bad data. */
   var subEl = document.getElementById('subCount');
+  var SUB_SOURCES = [
+    ['https://backend.mixerno.space/api/youtube/estv3/UCA-OVXXVRktMJ5tAbRMQonw',
+      function (d) { return d.items && d.items[0] && d.items[0].statistics.subscriberCount; }],
+    ['https://livecounts.xyz/api/youtube-live-subscriber-count/live/UCA-OVXXVRktMJ5tAbRMQonw',
+      function (d) { return d.counts && d.counts[0]; }],
+    ['https://ests.sctools.org/api/get/UCA-OVXXVRktMJ5tAbRMQonw',
+      function (d) { return d.stats && d.stats.estCount; }]
+  ];
+
+  function plausible(n) {
+    var official = ytData && ytData.channel && ytData.channel.subscribers;
+    return typeof n === 'number' && n > 0 && (!official || Math.abs(n - official) / official <= 0.05);
+  }
+
+  function tryFrom(i) {
+    if (i >= SUB_SOURCES.length) { return Promise.reject(); }
+    return fetch(SUB_SOURCES[i][0], { cache: 'no-store' })
+      .then(function (r) { return r.json(); })
+      .then(function (d) {
+        var n = Number(SUB_SOURCES[i][1](d));
+        if (!plausible(n)) { throw new Error('bad count'); }
+        return n;
+      })
+      .catch(function () { return tryFrom(i + 1); });
+  }
+
   if (subEl && window.fetch) {
     var loadSubs = function () {
-      fetch('https://mixerno.space/api/youtube-channel-counter/user/UCA-OVXXVRktMJ5tAbRMQonw')
-        .then(function (r) { return r.json(); })
-        .then(function (d) {
-          var c = (d.counts || []).filter(function (x) { return x.value === 'subscribers'; })[0];
-          if (c && c.count) {
-            subEl.textContent = Number(c.count).toLocaleString('en-US');
-          }
+      tryFrom(0)
+        .catch(function () {
+          // every live source is down: fall back to YouTube's own number
+          var official = ytData && ytData.channel && ytData.channel.subscribers;
+          if (!official) { throw new Error('no count'); }
+          return official;
         })
+        .then(function (n) { subEl.textContent = n.toLocaleString('en-US'); })
         .catch(function () { /* keep the static fallback number */ });
     };
-    loadSubs();
-    setInterval(loadSubs, 60000);
+    dataReady.then(loadSubs);
+    setInterval(loadSubs, 30000);
   }
 
   /* ---------- cursor trail ---------- */
