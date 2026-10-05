@@ -199,6 +199,16 @@
   .hero { max-width: 840px; margin: 0 auto; }
 
   /* cursor trail */
+  /* animated crimson forest behind every tab; z-index -1 keeps it above the body background and below all content */
+  #netherBg {
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: -1;
+    opacity: 0.2;
+    pointer-events: none;
+  }
   #trailCanvas {
     position: fixed;
     inset: 0;
@@ -662,6 +672,7 @@
   @media (max-width: 640px) { .foot .fine { margin-left: 0; } }
 </style>
 
+<canvas id="netherBg" aria-hidden="true"></canvas>
 <canvas id="trailCanvas" aria-hidden="true"></canvas>
 
 <header class="site">
@@ -1345,6 +1356,245 @@
       if (dots.length > 0) { requestAnimationFrame(draw); } else { running = false; }
     }
   }
+})();
+</script>
+<script type="x-shader/x-fragment" id="netherFs">
+precision highp float;
+uniform vec2 uRes; uniform float uTime; uniform float uScroll;
+/* 1.0 = crimson forest (used on the site); 0.0 = the glowstone cavern variant */
+const float uMode=1.0;
+
+float hash(vec2 p){p=fract(p*vec2(123.34,456.21));p+=dot(p,p+45.32);return fract(p.x*p.y);}
+float hash3(vec3 p){p=fract(p*0.3183099+0.1);p*=17.0;return fract(p.x*p.y*p.z*(p.x+p.y+p.z));}
+float noise(vec2 p){vec2 i=floor(p),f=fract(p);vec2 u=f*f*(3.0-2.0*f);
+  return mix(mix(hash(i),hash(i+vec2(1,0)),u.x),mix(hash(i+vec2(0,1)),hash(i+vec2(1,1)),u.x),u.y);}
+
+vec2 path(float z){ return uMode<0.5 ? vec2(sin(z*0.03)*6.0,0.0) : vec2(sin(z*0.025)*8.0,0.0); }
+
+float floorH(vec2 xz){
+  float f;
+  if(uMode<0.5){ float w=abs(xz.x-path(xz.y).x);
+    f=-3.0+3.0*noise(xz*0.09)+1.5*noise(xz*0.23)+max(0.0,w-8.0)*1.3; }
+  else { f=-2.0+2.0*noise(xz*0.08)+noise(xz*0.21); }
+  return floor(f);
+}
+float ceilH(vec2 xz){ float w=abs(xz.x-path(xz.y).x);
+  return floor(12.0+5.0*noise(xz*0.07+7.0)-max(0.0,w-9.0)*0.9); }
+
+/* one glowstone cluster hangs from the cavern roof every 14 blocks */
+vec3 caveLight(float k){ float z=k*14.0+7.0; float x=path(z).x+(hash(vec2(k,1.7))-0.5)*10.0;
+  vec2 c=floor(vec2(x,z)); return vec3(c.x+0.5, ceilH(c)-0.6, c.y+0.5); }
+
+/* one huge crimson fungus per 9x9 patch, kept clear of the camera path */
+void tree(vec2 g, out vec2 tp, out float tf, out float th, out float ok){
+  tp=g*9.0+floor(vec2(hash(g),hash(g+5.3))*5.0)+2.0;
+  ok=abs(tp.x-path(tp.y).x)<3.5?0.0:1.0;
+  tf=floorH(tp); th=tf+6.0+floor(hash(g+2.2)*6.0);
+}
+
+/* block ids: 0 air, 1 netherrack, 2 nylium, 3 quartz ore, 4 glowstone, 5 lava, 6 crimson stem, 7 wart block, 8 shroomlight */
+float cell(vec3 c){
+  vec2 xz=c.xz; float f=floorH(xz);
+  if(uMode<0.5){
+    float w=abs(c.x-path(c.z).x); float h=hash(xz+0.5);
+    if(h>0.975&&w>3.5) f+=3.0+floor(hash(xz+9.1)*7.0);
+    float ce=ceilH(xz);
+    if(h<0.07&&w>3.0) ce-=1.0+floor(hash(xz+4.4)*5.0);
+    if(c.y<=f||c.y>=ce) return hash3(c)>0.94?3.0:1.0;
+    vec3 L=caveLight(floor(c.z/14.0));
+    if(length(c+0.5-L)<2.1&&hash3(c+3.1)>0.3) return 4.0;
+    if(c.y<=-4.0) return 5.0;
+    return 0.0;
+  }
+  if(c.y<=f) return c.y==f?2.0:1.0;
+  if(c.y>=28.0) return 1.0;
+  vec2 g=floor(xz/9.0); vec2 tp; float tf,th,ok; tree(g,tp,tf,th,ok);
+  if(ok>0.5){ vec2 d=abs(xz-tp); float md=max(d.x,d.y);
+    if(md<0.5&&c.y>tf&&c.y<th-1.0) return 6.0;
+    if(c.y>=th-2.0&&c.y<=th){ float r=c.y==th?1.0:2.0; if(md<=r) return hash3(c)>0.85?8.0:7.0; }
+    if(md>1.5&&md<2.5&&c.y<th-2.0&&c.y>=th-2.0-floor(hash(xz+g*3.0)*5.0)&&hash(xz*3.1+1.0)>0.45) return 7.0;
+  }
+  if(c.y==f+1.0&&hash(xz+0.37)>0.965) return 7.0;
+  return 0.0;
+}
+float solid(vec3 c){ float id=cell(c); return (id>0.5&&id!=5.0)?1.0:0.0; }
+
+vec4 lightAt(int i, vec3 near){
+  if(uMode<0.5){ float k=floor(near.z/14.0)+float(i)-1.0; return vec4(caveLight(k),34.0); }
+  float fi=float(i); vec2 g=floor(near.xz/9.0)+vec2(mod(fi,3.0)-1.0,floor(fi/3.0)-1.0);
+  vec2 tp; float tf,th,ok; tree(g,tp,tf,th,ok);
+  return vec4(tp.x+0.5,th-2.6,tp.y+0.5,ok*9.0);
+}
+vec3 lightCol(){ return uMode<0.5?vec3(1.0,0.72,0.38):vec3(1.0,0.5,0.22); }
+
+float shadow(vec3 p, vec3 L){
+  vec3 rd=normalize(L-p); float maxd=length(L-p)-1.4;
+  vec3 pos=floor(p); vec3 st=sign(rd); vec3 td=abs(1.0/rd);
+  vec3 tm=(st*(pos-p)+st*0.5+0.5)*td;
+  for(int i=0;i<30;i++){
+    vec3 m=step(tm.xyz,min(tm.yzx,tm.zxy)); float tc=dot(tm,m);
+    if(tc>maxd) return 1.0;
+    tm+=m*td; pos+=m*st;
+    float id=cell(pos); if(id>0.5&&id!=4.0&&id!=8.0&&id!=5.0) return 0.18;
+  }
+  return 1.0;
+}
+
+vec3 embers(vec2 uv,float t,float density,vec3 tint){vec3 c=vec3(0.0);
+  for(int L=0;L<3;L++){float fl=float(L);float sc=9.0+fl*7.0;
+    vec2 q=uv*sc+vec2(sin(t*0.3+fl)*0.6,-t*(0.3+fl*0.15)*sc*0.1);
+    vec2 id=floor(q);vec2 f=fract(q)-0.5;float h=hash(id+fl*17.0);
+    if(h>density) continue;
+    vec2 o=(vec2(hash(id+3.1),hash(id+7.7))-0.5)*0.7;
+    float d=length(f-o);float fl2=0.6+0.4*sin(t*5.0+h*40.0);
+    c+=tint*smoothstep(0.08-fl*0.02,0.0,d)*fl2*(1.0-fl*0.25);}
+  return c;}
+
+void main(){
+  vec2 uv=(gl_FragCoord.xy-0.5*uRes)/uRes.y; float t=uTime;
+  float z=t*1.5+uScroll*90.0;
+  vec3 ro=vec3(path(z).x,uMode<0.5?4.2:2.8,z);
+  vec3 ta=vec3(path(z+8.0).x,ro.y+(uMode<0.5?1.2:1.6),z+8.0);
+  vec3 fw=normalize(ta-ro); vec3 rt=normalize(cross(vec3(0,1,0),fw)); vec3 up=cross(fw,rt);
+  vec3 rd=normalize(fw+uv.x*rt+uv.y*up);
+
+  vec3 pos=floor(ro); vec3 st=sign(rd); vec3 td=abs(1.0/rd);
+  vec3 tm=(st*(pos-ro)+st*0.5+0.5)*td; vec3 mask=vec3(0.0); float id=0.0;
+  for(int i=0;i<150;i++){ id=cell(pos); if(id>0.5) break;
+    mask=step(tm.xyz,min(tm.yzx,tm.zxy)); tm+=mask*td; pos+=mask*st; }
+  float dist=id>0.5?dot(tm-td,mask):120.0;
+
+  vec3 fogCol=uMode<0.5?vec3(0.12,0.022,0.02):vec3(0.13,0.02,0.03);
+  vec3 col=fogCol;
+  if(id>0.5){
+    vec3 hp=ro+rd*dist; vec3 n=-mask*st;
+    vec2 fuv=mask.x>0.5?hp.zy:(mask.y>0.5?hp.xz:hp.xy);
+    vec2 px=floor(fract(fuv)*16.0); vec3 bp=pos;
+    vec3 alb; vec3 emit=vec3(0.0);
+    float a=hash(px+bp.xz*17.0+bp.y*3.1); float b=hash(floor(px/2.0)+bp.zy*5.3);
+    vec3 rack=mix(vec3(0.20,0.05,0.05),vec3(0.50,0.15,0.13),a*0.55+b*0.45);
+    if(a>0.93) rack=vec3(0.62,0.24,0.20);
+    vec3 nyl=mix(vec3(0.42,0.03,0.06),vec3(0.76,0.12,0.14),hash(px*1.7+bp.xz));
+    if(id==1.0){ alb=rack; if(uMode<0.5&&n.y>0.5&&noise(bp.xz*0.15)>0.62&&solid(bp+vec3(0,1,0))<0.5) alb=nyl; }
+    else if(id==2.0){ alb=rack; if(n.y>0.5) alb=nyl; else if(n.y>-0.5&&px.y>=12.0+floor(hash(vec2(px.x,bp.x+bp.z))*3.0)) alb=nyl; }
+    else if(id==3.0){ alb=rack; if(hash(floor(px/2.0)*1.3+bp.xy+bp.z)>0.8&&hash(px+bp.zx)>0.3) alb=vec3(0.92,0.88,0.83); }
+    else if(id==4.0){ alb=mix(vec3(0.80,0.50,0.22),vec3(1.0,0.86,0.52),hash(floor(px/3.0)+bp.xz+bp.y)); emit=alb*2.6; }
+    else if(id==5.0){ float v=noise(px*0.3+vec2(t*0.5,t*0.2)+bp.xz*3.0); alb=mix(vec3(0.95,0.30,0.03),vec3(1.0,0.72,0.2),v); emit=alb*1.8; }
+    else if(id==6.0){ if(abs(n.y)>0.5){ float r=max(abs(px.x-7.5),abs(px.y-7.5)); alb=r>5.5?vec3(0.40,0.10,0.20):mix(vec3(0.55,0.20,0.25),vec3(0.70,0.30,0.32),hash(px+bp.xz)); }
+      else alb=mix(vec3(0.26,0.06,0.15),vec3(0.55,0.15,0.28),hash(vec2(px.x,bp.x*7.0+bp.z)))*(0.8+0.2*hash(px+bp.y)); }
+    else if(id==7.0){ alb=mix(vec3(0.36,0.02,0.04),vec3(0.70,0.08,0.09),hash(px+bp.xz*3.0+bp.y)); }
+    else {
+      /* shroomlight: orange block of round cells, each a warm yellow core inside a darker orange ring */
+      vec2 cid=floor(px/4.0); vec2 q=mod(px,4.0)-1.5; float cj=hash(cid+bp.xz*3.1+bp.y);
+      float rr=(abs(q.x)+abs(q.y))*1.15+cj*1.6-0.4;
+      float j=hash(px*1.9+bp.xz+bp.y);
+      vec3 core=mix(vec3(1.0,0.80,0.42),vec3(1.0,0.90,0.60),j);
+      vec3 mid=mix(vec3(0.95,0.52,0.18),vec3(1.0,0.62,0.25),j);
+      vec3 ring=mix(vec3(0.62,0.22,0.07),vec3(0.75,0.30,0.10),j);
+      alb=rr<1.6?core:(rr<3.2?mid:ring);
+      emit=alb*mix(0.4,1.1,smoothstep(3.6,0.6,rr)); }
+
+    /* smooth lighting: vertex ambient occlusion from the 8 neighbours of the face, like the game does */
+    vec3 uA=mask.x>0.5?vec3(0,0,1):vec3(1,0,0); vec3 vA=mask.y>0.5?vec3(0,0,1):vec3(0,1,0);
+    vec3 base=pos+n;
+    float su1=solid(base+uA),su0=solid(base-uA),sv1=solid(base+vA),sv0=solid(base-vA);
+    float c00=solid(base-uA-vA),c10=solid(base+uA-vA),c01=solid(base-uA+vA),c11=solid(base+uA+vA);
+    float a00=(su0*sv0>0.5)?0.0:3.0-(su0+sv0+c00);
+    float a10=(su1*sv0>0.5)?0.0:3.0-(su1+sv0+c10);
+    float a01=(su0*sv1>0.5)?0.0:3.0-(su0+sv1+c01);
+    float a11=(su1*sv1>0.5)?0.0:3.0-(su1+sv1+c11);
+    vec2 ff=fract(fuv); float ao=mix(mix(a00,a10,ff.x),mix(a01,a11,ff.x),ff.y)/3.0;
+    ao=0.35+0.65*ao;
+
+    /* lights: nearest one casts a shadow, the rest just add */
+    float nd=1e9; int ni=0;
+    for(int i=0;i<9;i++){ if(uMode<0.5&&i>3) break; vec4 L=lightAt(i,hp); if(L.w<0.5) continue;
+      float d=length(L.xyz-hp); if(d<nd){nd=d;ni=i;} }
+    float sh=1.0; if(emit.r==0.0){ vec4 Ln=lightAt(ni,hp); sh=shadow(hp+n*0.02,Ln.xyz); }
+    vec3 lsum=vec3(0.0);
+    for(int i=0;i<9;i++){ if(uMode<0.5&&i>3) break; vec4 L=lightAt(i,hp); if(L.w<0.5) continue;
+      vec3 dv=L.xyz-hp; float d2=dot(dv,dv); float df=max(dot(n,normalize(dv)),0.0)*0.85+0.15;
+      float s=i==ni?sh:1.0; lsum+=lightCol()*L.w*df*s/(1.0+d2*(uMode<0.5?0.1:0.22)); }
+    vec3 amb=uMode<0.5?vec3(0.07,0.018,0.018):vec3(0.05,0.012,0.02);
+    if(uMode<0.5) amb+=vec3(1.0,0.35,0.05)*exp(-max(hp.y+4.0,0.0)*0.6)*0.5;
+    col=alb*(amb+lsum*0.55)*ao+emit;
+    float fogK=mix(0.055,0.028,uScroll);
+    col=mix(fogCol,col,exp(-dist*fogK));
+  }
+
+  /* glow in the fog around each light source */
+  vec3 near=ro+fw*12.0;
+  for(int i=0;i<9;i++){ if(uMode<0.5&&i>3) break; vec4 L=lightAt(i,near); if(L.w<0.5) continue;
+    vec3 lo=L.xyz-ro; float b=dot(lo,rd); float h=max(length(lo-rd*b),0.25); float tt=min(dist,90.0);
+    float sc=(atan((tt-b)/h)-atan(-b/h))/h;
+    col+=lightCol()*sc*L.w*(uMode<0.5?0.012:0.008)*(0.8+0.4*uScroll); }
+
+  col+=embers(uv,t,0.10+uScroll*0.25,uMode<0.5?vec3(1.0,0.5,0.15):vec3(1.0,0.25,0.2))*0.9;
+  col*=(uMode<0.5?1.0:1.2)+0.3*uScroll;
+  col=(col*(2.51*col+0.03))/(col*(2.43*col+0.59)+0.14);
+  col*=0.55+0.45*smoothstep(1.35,0.25,length(uv));
+  gl_FragColor=vec4(clamp(col,0.0,1.0),1.0);
+}
+</script>
+<script>
+/* ---------- crimson forest background ----------
+   A voxel Nether drawn in WebGL at low resolution and shown at 20% opacity.
+   Scrolling flies the camera deeper and brightens the light. */
+(function () {
+  var canvas = document.getElementById('netherBg');
+  var gl = canvas && canvas.getContext('webgl', { antialias: false, premultipliedAlpha: false, powerPreference: 'low-power' });
+  if (!gl) { if (canvas) { canvas.remove(); } return; }
+
+  function compile(type, src) {
+    var sh = gl.createShader(type); gl.shaderSource(sh, src); gl.compileShader(sh);
+    return gl.getShaderParameter(sh, gl.COMPILE_STATUS) ? sh : null;
+  }
+  var vs = compile(gl.VERTEX_SHADER, 'attribute vec2 a;void main(){gl_Position=vec4(a,0.0,1.0);}');
+  var fs = compile(gl.FRAGMENT_SHADER, document.getElementById('netherFs').textContent);
+  if (!vs || !fs) { canvas.remove(); return; }
+  var prog = gl.createProgram();
+  gl.attachShader(prog, vs); gl.attachShader(prog, fs); gl.linkProgram(prog);
+  if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) { canvas.remove(); return; }
+  gl.useProgram(prog);
+  var uRes = gl.getUniformLocation(prog, 'uRes');
+  var uTime = gl.getUniformLocation(prog, 'uTime');
+  var uScroll = gl.getUniformLocation(prog, 'uScroll');
+  gl.bindBuffer(gl.ARRAY_BUFFER, gl.createBuffer());
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW);
+  var aLoc = gl.getAttribLocation(prog, 'a');
+  gl.enableVertexAttribArray(aLoc);
+  gl.vertexAttribPointer(aLoc, 2, gl.FLOAT, false, 0, 0);
+
+  function resize() {
+    var s = window.innerWidth < 700 ? 0.35 : 0.5;  // it sits at 20% opacity, so low resolution is invisible
+    canvas.width = Math.max(1, Math.round(window.innerWidth * s));
+    canvas.height = Math.max(1, Math.round(window.innerHeight * s));
+    gl.viewport(0, 0, canvas.width, canvas.height);
+  }
+  window.addEventListener('resize', resize);
+  resize();
+
+  var target = 0, smooth = 0;
+  function readScroll() {
+    var max = document.documentElement.scrollHeight - window.innerHeight;
+    target = max > 0 ? Math.min(1, Math.max(0, window.scrollY / max)) : 0;
+  }
+  window.addEventListener('scroll', readScroll, { passive: true });
+  readScroll();
+
+  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var t0 = performance.now(), last = 0;
+  function frame(now) {
+    requestAnimationFrame(frame);
+    if (now - last < 33) { return; }  // ~30fps is plenty for a slow drift
+    last = now;
+    smooth += (target - smooth) * 0.08;
+    gl.uniform2f(uRes, canvas.width, canvas.height);
+    gl.uniform1f(uTime, (now - t0) / 1000 * (reduce ? 0.1 : 1));
+    gl.uniform1f(uScroll, smooth);
+    gl.drawArrays(gl.TRIANGLES, 0, 3);
+  }
+  requestAnimationFrame(frame);
 })();
 </script>
 </body>
