@@ -59,7 +59,6 @@
 
   * { box-sizing: border-box; }
   html { scroll-behavior: smooth; }
-  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
 
   body {
     margin: 0;
@@ -1622,12 +1621,10 @@ void main(){
 })();
 
 /* ---------- smooth scrolling ----------
-   Mouse wheels move the page in fixed jumps per notch. This glides the page
-   toward where the wheel points instead. Trackpads, touch, keyboard and the
+   Mouse wheels move the page in fixed jumps per notch. This glides the whole
+   page toward where the wheel points instead. Touch, keyboard and the
    scrollbar keep the browser's own behaviour. */
 (function () {
-  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) { return; }
-  if (!window.matchMedia('(pointer: fine)').matches) { return; }
   var root = document.documentElement;
   var target = window.scrollY, pos = window.scrollY, running = false;
   function maxY() { return root.scrollHeight - window.innerHeight; }
@@ -1658,9 +1655,8 @@ void main(){
     if (e.ctrlKey || e.defaultPrevented) { return; }
     var dy = e.deltaY;
     if (e.deltaMode === 1) { dy *= 40; } else if (e.deltaMode === 2) { dy *= window.innerHeight; }
-    // trackpads send many small, fractional deltas and already scroll smoothly
-    if (e.deltaMode === 0 && Math.abs(dy) < 50 && dy % 1 !== 0) { return; }
     if (Math.abs(e.deltaX) > Math.abs(dy) || scrollsItself(e.target, dy)) { return; }
+    if (maxY() <= 0) { return; }  // nothing to scroll here (e.g. shown inside a taller frame)
     e.preventDefault();
     if (!running) { pos = target = window.scrollY; vel = 0; }
     target = Math.max(0, Math.min(maxY(), target + dy * 1.2));
