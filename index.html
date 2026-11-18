@@ -207,7 +207,9 @@
     z-index: -1;
     opacity: 0.2;
     pointer-events: none;
+    transition: opacity 0.55s ease;
   }
+  #netherBg.fading { opacity: 0; }
   #trailCanvas {
     position: fixed;
     inset: 0;
@@ -1047,6 +1049,7 @@
     el.classList.add('active');
     tabs.forEach(function (b) { b.classList.toggle('active', b.dataset.tab === name); });
     if (push) history.replaceState(null, '', '#' + name);
+    document.dispatchEvent(new CustomEvent('tabchange', { detail: name }));
     window.scrollTo({ top: 0, behavior: 'auto' });
   }
   tabs.forEach(function (b) {
@@ -1415,8 +1418,8 @@
 <script type="x-shader/x-fragment" id="netherFs">
 precision highp float;
 uniform vec2 uRes; uniform float uTime; uniform float uScroll;
-/* 1.0 = crimson forest (used on the site); 0.0 = the glowstone cavern variant */
-const float uMode=1.0;
+/* uMode: 1.0 = crimson forest, 0.0 = glowstone cavern. uGrade tints and brightens it per tab. */
+uniform float uMode; uniform vec3 uGrade;
 
 float hash(vec2 p){p=fract(p*vec2(123.34,456.21));p+=dot(p,p+45.32);return fract(p.x*p.y);}
 float hash3(vec3 p){p=fract(p*0.3183099+0.1);p*=17.0;return fract(p.x*p.y*p.z*(p.x+p.y+p.z));}
@@ -1585,6 +1588,7 @@ void main(){
 
   col+=embers(uv,t,0.10+uScroll*0.25,uMode<0.5?vec3(1.0,0.5,0.15):vec3(1.0,0.25,0.2))*0.9;
   col*=(uMode<0.5?1.0:1.2)+0.3*uScroll;
+  col*=uGrade;
   col=(col*(2.51*col+0.03))/(col*(2.43*col+0.59)+0.14);
   col*=0.55+0.45*smoothstep(1.35,0.25,length(uv));
   gl_FragColor=vec4(clamp(col,0.0,1.0),1.0);
@@ -1689,6 +1693,32 @@ void main(){
   var uRes = gl.getUniformLocation(prog, 'uRes');
   var uTime = gl.getUniformLocation(prog, 'uTime');
   var uScroll = gl.getUniformLocation(prog, 'uScroll');
+  var uMode = gl.getUniformLocation(prog, 'uMode');
+  var uGrade = gl.getUniformLocation(prog, 'uGrade');
+
+  /* each tab gets its own mood: which world, plus a colour grade (r, g, b multipliers) */
+  var MOODS = {
+    home:      { mode: 1, grade: [1.00, 1.00, 1.00] },  // crimson forest
+    youtube:   { mode: 1, grade: [1.00, 1.00, 1.00] },
+    discord:   { mode: 1, grade: [1.35, 1.12, 0.90] },  // warmer, brighter forest
+    setup:     { mode: 0, grade: [1.00, 1.00, 1.00] },  // glowstone cavern
+    resources: { mode: 0, grade: [1.10, 1.05, 0.95] },
+    help:      { mode: 1, grade: [0.72, 0.70, 0.85] }   // calmer, dimmer forest
+  };
+  var mode = 1, grade = [1, 1, 1], gradeTarget = [1, 1, 1], swapTimer = 0;
+  function setMood(name, instant) {
+    var m = MOODS[name] || MOODS.home;
+    gradeTarget = m.grade.slice();
+    if (instant) { mode = m.mode; grade = m.grade.slice(); return; }
+    if (m.mode === mode) { return; }
+    // the two worlds are different geometry, so fade out, swap, fade back in
+    clearTimeout(swapTimer);
+    canvas.classList.add('fading');
+    swapTimer = setTimeout(function () { mode = m.mode; canvas.classList.remove('fading'); }, 560);
+  }
+  var activeTab = document.querySelector('.tab.active');
+  setMood(activeTab ? activeTab.id.replace('tab-', '') : 'home', true);
+  document.addEventListener('tabchange', function (e) { setMood(e.detail, false); });
   gl.bindBuffer(gl.ARRAY_BUFFER, gl.createBuffer());
   gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW);
   var aLoc = gl.getAttribLocation(prog, 'a');
@@ -1722,6 +1752,9 @@ void main(){
     gl.uniform2f(uRes, canvas.width, canvas.height);
     gl.uniform1f(uTime, (now - t0) / 1000 * (reduce ? 0.1 : 1));
     gl.uniform1f(uScroll, smooth);
+    for (var gi = 0; gi < 3; gi++) { grade[gi] += (gradeTarget[gi] - grade[gi]) * 0.08; }
+    gl.uniform1f(uMode, mode);
+    gl.uniform3f(uGrade, grade[0], grade[1], grade[2]);
     gl.drawArrays(gl.TRIANGLES, 0, 3);
   }
   requestAnimationFrame(frame);
