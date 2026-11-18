@@ -598,7 +598,37 @@
   .perk h3 { margin: 0 0 6px; font-size: 16px; font-weight: 700; }
   .perk p { margin: 0; font-size: 14px; color: var(--muted); }
 
+  .perk .hw-name { color: var(--text); font-weight: 600; margin-bottom: 14px; }
+  .perk .buy {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 8px 14px; border-radius: var(--r-pill);
+    background: var(--panel-2); border: 1px solid var(--line);
+    color: var(--text); font-size: 13.5px; font-weight: 700; text-decoration: none;
+  }
+  .perk .buy:hover, .perk .buy:focus-visible { border-color: var(--red); color: #FFD9D6; }
+
   /* ============ HELP tab ============ */
+  .ask-card {
+    max-width: 780px; margin-top: 26px; padding: 24px;
+    background: var(--panel); border: 1px solid var(--line); border-radius: var(--r-lg);
+  }
+  .ask-card h3 { margin: 0 0 4px; font-size: 18px; }
+  .ask-card > p { margin: 0 0 18px; color: var(--muted); font-size: 14.5px; }
+  .ask-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .ask-grid .full { grid-column: 1 / -1; }
+  @media (max-width: 640px) { .ask-grid { grid-template-columns: 1fr; } }
+  .ask-card label { display: grid; gap: 6px; font-size: 13px; font-weight: 700; color: var(--muted); }
+  .ask-card input, .ask-card select, .ask-card textarea {
+    font: 400 15px/1.4 'Instrument Sans', sans-serif; color: var(--text);
+    background: var(--bg-2); border: 1px solid var(--line); border-radius: 12px; padding: 11px 13px; width: 100%;
+  }
+  .ask-card textarea { min-height: 130px; resize: vertical; }
+  .ask-card input:focus, .ask-card select:focus, .ask-card textarea:focus { outline: none; border-color: var(--red); }
+  .ask-card .hp { position: absolute; left: -9999px; }
+  .ask-foot { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; margin-top: 16px; }
+  .ask-status { font-size: 14px; color: var(--muted); }
+  .ask-status.ok { color: #7ee2a8; }
+  .ask-status.err { color: var(--red-hot); }
   .help-intro { padding-top: 44px; max-width: 62ch; }
   .help-intro p { color: var(--muted); }
   .faq-list { display: grid; gap: 14px; padding: 26px 0 0; max-width: 780px; }
@@ -886,32 +916,38 @@
           <div class="perk">
             <div class="ic"><svg viewBox="0 0 24 24"><path d="M9 2h2v3h2V2h2v3h3v2h3v2h-3v2h3v2h-3v2h3v2h-3v3h-2v3h-2v-3h-2v3H9v-3H6v-3H3v-2h3v-2H3v-2h3V9H3V7h3V5h3V2zm-1 6v8h8V8H8z"/></svg></div>
             <h3>CPU</h3>
-            <p>AMD Ryzen 7 7800X3D — 8 cores with 3D V-Cache, the Minecraft frame-time king.</p>
+            <p class="hw-name">AMD Ryzen 7 7800X3D</p>
+            <a class="buy" href="https://www.bestbuy.com/site/amd-ryzen-7-7800x3d-8-core-16-thread-4-2-ghz-5-0-ghz-max-boost-socket-am5-unlocked-desktop-processor-black/6537139.p?skuId=6537139" target="_blank" rel="noopener sponsored">Buy on Best Buy <span aria-hidden="true">↗</span></a>
           </div>
           <div class="perk">
             <div class="ic"><svg viewBox="0 0 24 24"><path d="M2 6h20v10H4v2H2V6zm4 2v6h4V8H6zm8 0v6h4V8h-4z"/></svg></div>
             <h3>GPU</h3>
-            <p>NVIDIA RTX 4080 SUPER — frames to spare at any render distance.</p>
+            <p class="hw-name">NVIDIA RTX 4080 SUPER</p>
+            <a class="buy" href="https://www.amazon.com/s?k=rtx+4080+super" target="_blank" rel="noopener sponsored">Buy on Amazon <span aria-hidden="true">↗</span></a>
           </div>
           <div class="perk">
             <div class="ic"><svg viewBox="0 0 24 24"><path d="M3 7h18v8H3V7zm2 2v4h2V9H5zm4 0v4h2V9H9zm4 0v4h2V9h-2zm4 0v4h2V9h-2zM5 17h14v2H5v-2z"/></svg></div>
             <h3>Memory</h3>
-            <p>64 GB DDR5 — recording, editing, and 40 mods without a stutter.</p>
+            <p class="hw-name">64 GB DDR5</p>
+            <a class="buy" href="https://www.bestbuy.com/site/searchpage.jsp?st=64gb+ddr5+6000" target="_blank" rel="noopener sponsored">Buy on Best Buy <span aria-hidden="true">↗</span></a>
           </div>
           <div class="perk">
             <div class="ic"><svg viewBox="0 0 24 24"><path d="M2 6h20v12H2V6zm2 2v2h2V8H4zm4 0v2h2V8H8zm4 0v2h2V8h-2zm4 0v2h2V8h-2zM4 12v2h2v-2H4zm4 0v2h8v-2H8zm12 0v2h-2v-2h2z"/></svg></div>
             <h3>Keyboard</h3>
-            <p>Wooting 60HE v2 — rapid trigger and analog input. W-taps come out exactly when meant.</p>
+            <p class="hw-name">Wooting 60HE v2</p>
+            <a class="buy" href="https://www.amazon.com/s?k=wooting+60he+v2" target="_blank" rel="noopener sponsored">Buy on Amazon <span aria-hidden="true">↗</span></a>
           </div>
           <div class="perk">
             <div class="ic"><svg viewBox="0 0 24 24"><path d="M12 2a7 7 0 017 7v6a7 7 0 11-14 0V9a7 7 0 017-7zm-1 3v5h2V5h-2z"/></svg></div>
             <h3>Mouse</h3>
-            <p>Finalmouse ULX Frostlord — featherweight magnesium at 800 DPI, 90% in-game.</p>
+            <p class="hw-name">Finalmouse ULX Frostlord</p>
+            <a class="buy" href="https://www.amazon.com/s?k=finalmouse+ulx+frostlord" target="_blank" rel="noopener sponsored">Buy on Amazon <span aria-hidden="true">↗</span></a>
           </div>
           <div class="perk">
             <div class="ic"><svg viewBox="0 0 24 24"><path d="M4 5h16a1 1 0 011 1v12a1 1 0 01-1 1H4a1 1 0 01-1-1V6a1 1 0 011-1zm2 3l6 8 6-8H6z"/></svg></div>
             <h3>Mousepad</h3>
-            <p>Wallhack SP-004 glass pad — zero break-in, identical glide on every flick.</p>
+            <p class="hw-name">Wallhack SP-004</p>
+            <a class="buy" href="https://www.amazon.com/s?k=wallhack+sp-004" target="_blank" rel="noopener sponsored">Buy on Amazon <span aria-hidden="true">↗</span></a>
           </div>
         </div>
       </section>
@@ -958,8 +994,31 @@
       <div class="help-intro">
         <p class="eyebrow">Help & FAQ</p>
         <h2 class="display" style="font-size:clamp(30px,4.4vw,50px)">Questions people<br>actually ask</h2>
-        <p>For everything gameplay-related, the Discord is the fastest answer. Business goes below.</p>
+        <p>Got a question about a video, the setup, or anything else? Send it below and it goes straight to Fallerfly. For quick gameplay help, the Discord is the fastest answer.</p>
       </div>
+
+      <form class="ask-card" id="askForm" novalidate>
+        <h3>Ask a question</h3>
+        <p>Questions, ideas, and inquiries all land in Fallerfly's inbox. Leave an email if you'd like a reply.</p>
+        <div class="ask-grid">
+          <label>Name<input name="name" autocomplete="name" maxlength="80" required></label>
+          <label>Email (for a reply)<input name="email" type="email" autocomplete="email" maxlength="120"></label>
+          <label class="full">Topic
+            <select name="topic">
+              <option>Question</option>
+              <option>Video idea</option>
+              <option>Business or collab</option>
+              <option>Something else</option>
+            </select>
+          </label>
+          <label class="full">Message<textarea name="message" maxlength="4000" required></textarea></label>
+          <input class="hp" type="text" name="_honey" tabindex="-1" autocomplete="off" aria-hidden="true">
+        </div>
+        <div class="ask-foot">
+          <button class="btn btn-red" type="submit">Send question</button>
+          <span class="ask-status" id="askStatus" role="status" aria-live="polite"></span>
+        </div>
+      </form>
       <div class="faq-list">
         <details class="faq" open>
           <summary>Business or collab inquiries?</summary>
@@ -1535,6 +1594,82 @@ void main(){
   col*=0.55+0.45*smoothstep(1.35,0.25,length(uv));
   gl_FragColor=vec4(clamp(col,0.0,1.0),1.0);
 }
+</script>
+<script>
+/* ---------- help: question form (FormSubmit sends it to the inbox; no server needed) ---------- */
+(function () {
+  var f = document.getElementById('askForm');
+  if (!f) { return; }
+  var st = document.getElementById('askStatus');
+  function say(msg, cls) { st.textContent = msg; st.className = 'ask-status' + (cls ? ' ' + cls : ''); }
+  f.addEventListener('submit', function (e) {
+    e.preventDefault();
+    if (f._honey.value) { return; }
+    if (!f.name.value.trim() || !f.message.value.trim()) { say('Add your name and a message first.', 'err'); return; }
+    if (f.email.value && !f.email.checkValidity()) { say('That email looks off.', 'err'); return; }
+    var btn = f.querySelector('button'); btn.disabled = true; say('Sending…');
+    fetch('https://formsubmit.co/ajax/fallerfly@gmail.com', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+      body: JSON.stringify({
+        name: f.name.value.trim(), email: f.email.value.trim(), topic: f.topic.value,
+        message: f.message.value.trim(),
+        _subject: 'fallerfly.com: ' + f.topic.value + ' from ' + f.name.value.trim(),
+        _template: 'table', _honey: ''
+      })
+    }).then(function (r) { return r.json(); }).then(function (d) {
+      if (d && (d.success === true || d.success === 'true')) { f.reset(); say('Sent! Thanks for reaching out.', 'ok'); }
+      else { throw new Error('send failed'); }
+    }).catch(function () {
+      say('Couldn\'t send right now. Try again, or email fallerfly@gmail.com.', 'err');
+    }).then(function () { btn.disabled = false; });
+  });
+})();
+
+/* ---------- smooth scrolling ----------
+   Mouse wheels move the page in fixed jumps per notch. This glides the page
+   toward where the wheel points instead. Trackpads, touch, keyboard and the
+   scrollbar keep the browser's own behaviour. */
+(function () {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) { return; }
+  if (!window.matchMedia('(pointer: fine)').matches) { return; }
+  var root = document.documentElement;
+  var target = window.scrollY, pos = window.scrollY, running = false;
+  function maxY() { return root.scrollHeight - window.innerHeight; }
+  function scrollsItself(el, dy) {
+    for (; el && el !== document.body && el !== root; el = el.parentElement) {
+      var cs = getComputedStyle(el);
+      if (/(auto|scroll)/.test(cs.overflowY) && el.scrollHeight > el.clientHeight) {
+        if ((dy > 0 && el.scrollTop + el.clientHeight < el.scrollHeight - 1) || (dy < 0 && el.scrollTop > 0)) { return true; }
+      }
+      if (el.tagName === 'TEXTAREA' || el.tagName === 'SELECT' || el.tagName === 'IFRAME') { return true; }
+    }
+    return false;
+  }
+  function step() {
+    // something else moved the page mid-glide (a tab switch, a link): let it win
+    if (Math.abs(window.scrollY - pos) > 3) { pos = target = window.scrollY; running = false; return; }
+    var d = target - pos;
+    if (Math.abs(d) < 0.5) { pos = target; window.scrollTo({ top: pos, behavior: 'instant' }); running = false; return; }
+    pos += d * 0.14;
+    window.scrollTo({ top: pos, behavior: 'instant' });
+    requestAnimationFrame(step);
+  }
+  window.addEventListener('wheel', function (e) {
+    if (e.ctrlKey || e.defaultPrevented) { return; }
+    var dy = e.deltaY;
+    if (e.deltaMode === 1) { dy *= 40; } else if (e.deltaMode === 2) { dy *= window.innerHeight; }
+    // trackpads send many small, fractional deltas and already scroll smoothly
+    if (e.deltaMode === 0 && Math.abs(dy) < 50 && dy % 1 !== 0) { return; }
+    if (Math.abs(e.deltaX) > Math.abs(dy) || scrollsItself(e.target, dy)) { return; }
+    e.preventDefault();
+    if (!running) { pos = target = window.scrollY; }
+    target = Math.max(0, Math.min(maxY(), target + dy));
+    if (!running) { running = true; requestAnimationFrame(step); }
+  }, { passive: false });
+  // keep in sync when something else moves the page (keys, scrollbar, tab switch)
+  window.addEventListener('scroll', function () { if (!running) { pos = target = window.scrollY; } }, { passive: true });
+})();
 </script>
 <script>
 /* ---------- crimson forest background ----------
