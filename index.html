@@ -623,6 +623,7 @@
     background: var(--bg-2); border: 1px solid var(--line); border-radius: 12px; padding: 11px 13px; width: 100%;
   }
   .ask-card textarea { min-height: 130px; resize: vertical; }
+  .ask-card ::placeholder { color: #6f6670; }
   .ask-card input:focus, .ask-card select:focus, .ask-card textarea:focus { outline: none; border-color: var(--red); }
   .ask-card .hp { position: absolute; left: -9999px; }
   .ask-foot { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; margin-top: 16px; }
@@ -994,10 +995,10 @@
 
       <form class="ask-card" id="askForm" novalidate>
         <h3>Ask a question</h3>
-        <p>Questions, ideas, and inquiries all land in Fallerfly's inbox. Leave an email if you'd like a reply.</p>
+        <p>Questions, ideas, and inquiries all land in Fallerfly's inbox. Leave your email or Discord username if you'd like a reply.</p>
         <div class="ask-grid">
           <label>Name<input name="name" autocomplete="name" maxlength="80" required></label>
-          <label>Email (for a reply)<input name="email" type="email" autocomplete="email" maxlength="120"></label>
+          <label>Email or Discord (for a reply)<input name="contact" autocomplete="off" maxlength="120" placeholder="you@email.com or Discord username"></label>
           <label class="full">Topic
             <select name="topic">
               <option>Question</option>
@@ -1601,13 +1602,12 @@ void main(){
     e.preventDefault();
     if (f._honey.value) { return; }
     if (!f.name.value.trim() || !f.message.value.trim()) { say('Add your name and a message first.', 'err'); return; }
-    if (f.email.value && !f.email.checkValidity()) { say('That email looks off.', 'err'); return; }
     var btn = f.querySelector('button'); btn.disabled = true; say('Sending…');
     fetch('https://formsubmit.co/ajax/fallerfly@gmail.com', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
       body: JSON.stringify({
-        name: f.name.value.trim(), email: f.email.value.trim(), topic: f.topic.value,
+        name: f.name.value.trim(), reply_to: f.contact.value.trim() || '(none left)', topic: f.topic.value,
         message: f.message.value.trim(),
         _subject: 'fallerfly.com: ' + f.topic.value + ' from ' + f.name.value.trim(),
         _template: 'table', _honey: ''
