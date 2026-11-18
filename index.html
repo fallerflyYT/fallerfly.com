@@ -1642,10 +1642,11 @@ void main(){
         _template: 'table', _honey: ''
       })
     }).then(function (r) { return r.json(); }).then(function (d) {
-      if (d && (d.success === true || d.success === 'true')) { f.reset(); say('Sent! Thanks for reaching out.', 'ok'); }
-      else { throw new Error('send failed'); }
+      if (d && (d.success === true || d.success === 'true')) { f.reset(); say('Sent! Thanks for reaching out.', 'ok'); return; }
+      // FormSubmit explains itself in d.message (e.g. the one-time activation notice); show it
+      say(d && d.message ? String(d.message) : 'Couldn\'t send right now. Try again, or email fallerfly@gmail.com.', 'err');
     }).catch(function () {
-      say('Couldn\'t send right now. Try again, or email fallerfly@gmail.com.', 'err');
+      say('Couldn\'t reach the form service. If you use an ad blocker, try pausing it, or email fallerfly@gmail.com.', 'err');
     }).then(function () { btn.disabled = false; });
   });
 })();
