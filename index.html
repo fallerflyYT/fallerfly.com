@@ -1641,12 +1641,16 @@ void main(){
     }
     return false;
   }
-  function step() {
+  // A critically damped spring: the page speeds up gently, then eases to a stop,
+  // so a single notch reads as one smooth glide rather than a jump.
+  var vel = 0, lastT = 0, W = 10;  // W sets the pace; ~0.5s per notch
+  function step(now) {
     // something else moved the page mid-glide (a tab switch, a link): let it win
-    if (Math.abs(window.scrollY - pos) > 3) { pos = target = window.scrollY; running = false; return; }
-    var d = target - pos;
-    if (Math.abs(d) < 0.5) { pos = target; window.scrollTo({ top: pos, behavior: 'instant' }); running = false; return; }
-    pos += d * 0.14;
+    if (Math.abs(window.scrollY - pos) > 3) { pos = target = window.scrollY; vel = 0; running = false; return; }
+    var dt = Math.min(0.05, (now - lastT) / 1000 || 0.016); lastT = now;
+    var acc = W * W * (target - pos) - 2 * W * vel;
+    vel += acc * dt; pos += vel * dt;
+    if (Math.abs(target - pos) < 0.5 && Math.abs(vel) < 5) { pos = target; vel = 0; window.scrollTo({ top: pos, behavior: 'instant' }); running = false; return; }
     window.scrollTo({ top: pos, behavior: 'instant' });
     requestAnimationFrame(step);
   }
@@ -1658,9 +1662,9 @@ void main(){
     if (e.deltaMode === 0 && Math.abs(dy) < 50 && dy % 1 !== 0) { return; }
     if (Math.abs(e.deltaX) > Math.abs(dy) || scrollsItself(e.target, dy)) { return; }
     e.preventDefault();
-    if (!running) { pos = target = window.scrollY; }
-    target = Math.max(0, Math.min(maxY(), target + dy));
-    if (!running) { running = true; requestAnimationFrame(step); }
+    if (!running) { pos = target = window.scrollY; vel = 0; }
+    target = Math.max(0, Math.min(maxY(), target + dy * 1.2));
+    if (!running) { running = true; lastT = performance.now(); requestAnimationFrame(step); }
   }, { passive: false });
   // keep in sync when something else moves the page (keys, scrollbar, tab switch)
   window.addEventListener('scroll', function () { if (!running) { pos = target = window.scrollY; } }, { passive: true });
