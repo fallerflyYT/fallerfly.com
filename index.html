@@ -59,7 +59,6 @@
 
   * { box-sizing: border-box; }
   html { scroll-behavior: smooth; }
-  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
 
   body {
     margin: 0;
@@ -598,7 +597,38 @@
   .perk h3 { margin: 0 0 6px; font-size: 16px; font-weight: 700; }
   .perk p { margin: 0; font-size: 14px; color: var(--muted); }
 
+  .perk .hw-name { color: var(--text); font-weight: 600; margin-bottom: 14px; }
+  .perk .buy {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 8px 14px; border-radius: var(--r-pill);
+    background: var(--panel-2); border: 1px solid var(--line);
+    color: var(--text); font-size: 13.5px; font-weight: 700; text-decoration: none;
+  }
+  .perk .buy:hover, .perk .buy:focus-visible { border-color: var(--red); color: #FFD9D6; }
+
   /* ============ HELP tab ============ */
+  .ask-card {
+    max-width: 780px; margin-top: 26px; padding: 24px;
+    background: var(--panel); border: 1px solid var(--line); border-radius: var(--r-lg);
+  }
+  .ask-card h3 { margin: 0 0 4px; font-size: 18px; }
+  .ask-card > p { margin: 0 0 18px; color: var(--muted); font-size: 14.5px; }
+  .ask-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .ask-grid .full { grid-column: 1 / -1; }
+  @media (max-width: 640px) { .ask-grid { grid-template-columns: 1fr; } }
+  .ask-card label { display: grid; gap: 6px; font-size: 13px; font-weight: 700; color: var(--muted); }
+  .ask-card input, .ask-card select, .ask-card textarea {
+    font: 400 15px/1.4 'Instrument Sans', sans-serif; color: var(--text);
+    background: var(--bg-2); border: 1px solid var(--line); border-radius: 12px; padding: 11px 13px; width: 100%;
+  }
+  .ask-card textarea { min-height: 130px; resize: vertical; }
+  .ask-card ::placeholder { color: #6f6670; }
+  .ask-card input:focus, .ask-card select:focus, .ask-card textarea:focus { outline: none; border-color: var(--red); }
+  .ask-card .hp { position: absolute; left: -9999px; }
+  .ask-foot { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; margin-top: 16px; }
+  .ask-status { font-size: 14px; color: var(--muted); }
+  .ask-status.ok { color: #7ee2a8; }
+  .ask-status.err { color: var(--red-hot); }
   .help-intro { padding-top: 44px; max-width: 62ch; }
   .help-intro p { color: var(--muted); }
   .faq-list { display: grid; gap: 14px; padding: 26px 0 0; max-width: 780px; }
@@ -686,6 +716,7 @@
       <button data-tab="youtube">YouTube</button>
       <button data-tab="discord">Discord</button>
       <button data-tab="setup">Specs</button>
+      <button data-tab="resources">Resources</button>
       <button data-tab="help">Help</button>
     </nav>
     <a class="sub-cta" href="https://www.youtube.com/@Fallerfly?sub_confirmation=1" target="_blank" rel="noopener">Subscribe</a>
@@ -886,69 +917,70 @@
           <div class="perk">
             <div class="ic"><svg viewBox="0 0 24 24"><path d="M9 2h2v3h2V2h2v3h3v2h3v2h-3v2h3v2h-3v2h3v2h-3v3h-2v3h-2v-3h-2v3H9v-3H6v-3H3v-2h3v-2H3v-2h3V9H3V7h3V5h3V2zm-1 6v8h8V8H8z"/></svg></div>
             <h3>CPU</h3>
-            <p>AMD Ryzen 7 7800X3D — 8 cores with 3D V-Cache, the Minecraft frame-time king.</p>
+            <p class="hw-name">AMD Ryzen 7 7800X3D</p>
+            <a class="buy" href="https://www.bestbuy.com/site/amd-ryzen-7-7800x3d-8-core-16-thread-4-2-ghz-5-0-ghz-max-boost-socket-am5-unlocked-desktop-processor-black/6537139.p?skuId=6537139" target="_blank" rel="noopener sponsored">Buy on Best Buy <span aria-hidden="true">↗</span></a>
           </div>
           <div class="perk">
             <div class="ic"><svg viewBox="0 0 24 24"><path d="M2 6h20v10H4v2H2V6zm4 2v6h4V8H6zm8 0v6h4V8h-4z"/></svg></div>
             <h3>GPU</h3>
-            <p>NVIDIA RTX 4080 SUPER — frames to spare at any render distance.</p>
+            <p class="hw-name">NVIDIA RTX 4080 SUPER</p>
+            <a class="buy" href="https://www.amazon.com/s?k=rtx+4080+super" target="_blank" rel="noopener sponsored">Buy on Amazon <span aria-hidden="true">↗</span></a>
           </div>
           <div class="perk">
             <div class="ic"><svg viewBox="0 0 24 24"><path d="M3 7h18v8H3V7zm2 2v4h2V9H5zm4 0v4h2V9H9zm4 0v4h2V9h-2zm4 0v4h2V9h-2zM5 17h14v2H5v-2z"/></svg></div>
             <h3>Memory</h3>
-            <p>64 GB DDR5 — recording, editing, and 40 mods without a stutter.</p>
+            <p class="hw-name">64 GB DDR5</p>
+            <a class="buy" href="https://www.bestbuy.com/site/searchpage.jsp?st=64gb+ddr5+6000" target="_blank" rel="noopener sponsored">Buy on Best Buy <span aria-hidden="true">↗</span></a>
           </div>
           <div class="perk">
             <div class="ic"><svg viewBox="0 0 24 24"><path d="M2 6h20v12H2V6zm2 2v2h2V8H4zm4 0v2h2V8H8zm4 0v2h2V8h-2zm4 0v2h2V8h-2zM4 12v2h2v-2H4zm4 0v2h8v-2H8zm12 0v2h-2v-2h2z"/></svg></div>
             <h3>Keyboard</h3>
-            <p>Wooting 60HE v2 — rapid trigger and analog input. W-taps come out exactly when meant.</p>
+            <p class="hw-name">Wooting 60HE v2</p>
+            <a class="buy" href="https://www.amazon.com/s?k=wooting+60he+v2" target="_blank" rel="noopener sponsored">Buy on Amazon <span aria-hidden="true">↗</span></a>
           </div>
           <div class="perk">
             <div class="ic"><svg viewBox="0 0 24 24"><path d="M12 2a7 7 0 017 7v6a7 7 0 11-14 0V9a7 7 0 017-7zm-1 3v5h2V5h-2z"/></svg></div>
             <h3>Mouse</h3>
-            <p>Finalmouse ULX Frostlord — featherweight magnesium at 800 DPI, 90% in-game.</p>
+            <p class="hw-name">Finalmouse ULX Frostlord</p>
+            <a class="buy" href="https://www.amazon.com/s?k=finalmouse+ulx+frostlord" target="_blank" rel="noopener sponsored">Buy on Amazon <span aria-hidden="true">↗</span></a>
           </div>
           <div class="perk">
             <div class="ic"><svg viewBox="0 0 24 24"><path d="M4 5h16a1 1 0 011 1v12a1 1 0 01-1 1H4a1 1 0 01-1-1V6a1 1 0 011-1zm2 3l6 8 6-8H6z"/></svg></div>
             <h3>Mousepad</h3>
-            <p>Wallhack SP-004 glass pad — zero break-in, identical glide on every flick.</p>
+            <p class="hw-name">Wallhack SP-004</p>
+            <a class="buy" href="https://www.amazon.com/s?k=wallhack+sp-004" target="_blank" rel="noopener sponsored">Buy on Amazon <span aria-hidden="true">↗</span></a>
           </div>
         </div>
       </section>
 
-      <div class="sec-head" style="margin-top:14px"><h2 class="display">Software</h2></div>
-      <div class="dc-perks" style="padding-top:0">
-        <div class="perk">
-          <div class="ic"><svg viewBox="0 0 24 24"><path d="M4 3h16v13H4V3zm4 15h8l1 3H7l1-3z"/></svg></div>
-          <h3>Case & cooling</h3>
-          <p>Lian Li build running L-Connect 3 for fans and lighting sync.</p>
+    </div>
+  </div>
+
+  <!-- ================= RESOURCES ================= -->
+  <div class="tab" id="tab-resources">
+    <div class="wrap">
+      <section class="block" style="padding-top:44px; border-top:0">
+        <div class="sec-head"><h2 class="display">Texture pack</h2></div>
+        <div class="dc-perks" style="padding-top:0">
+          <div class="perk res-card">
+            <div class="ic"><svg viewBox="0 0 24 24"><path d="M3 3h8v8H3V3zm10 0h8v8h-8V3zM3 13h8v8H3v-8zm10 0h8v8h-8v-8z"/></svg></div>
+            <h3>Current pack</h3>
+            <p class="hw-name">Coming soon</p>
+            <p>The pack used in the videos will be posted here.</p>
+          </div>
         </div>
-        <div class="perk">
-          <div class="ic"><svg viewBox="0 0 24 24"><path d="M12 2l2.4 7.2H22l-6 4.4 2.3 7.4-6.3-4.6-6.3 4.6L8 13.6 2 9.2h7.6L12 2z"/></svg></div>
-          <h3>Lighting & peripherals</h3>
-          <p>Corsair gear on iCUE 5 — everything glows the right shade of red.</p>
+      </section>
+
+      <section class="block">
+        <div class="sec-head"><h2 class="display">Custom mods</h2></div>
+        <div class="dc-perks" style="padding-top:0">
+          <div class="perk res-card">
+            <div class="ic"><svg viewBox="0 0 24 24"><path d="M14 2l2 2-2 2 4 4 2-2 2 2-6 6-2-2 2-2-4-4-2 2-2-2 6-6zM2 20l8-8 2 2-8 8H2v-2z"/></svg></div>
+            <h3>In the works</h3>
+            <p>Custom mods are being built. They'll show up here with downloads when they're ready.</p>
+          </div>
         </div>
-        <div class="perk">
-          <div class="ic"><svg viewBox="0 0 24 24"><path d="M3 5h18v10H3V5zm2 12h14v2H5v-2zM7 7v2h2V7H7zm4 0v2h2V7h-2zm4 0v2h2V7h-2zM7 11v2h2v-2H7zm4 0v2h2v-2h-2zm4 0v2h2v-2h-2z"/></svg></div>
-          <h3>Control deck</h3>
-          <p>Elgato Stream Deck for scenes and clips, Camera Hub for the cam.</p>
-        </div>
-        <div class="perk">
-          <div class="ic"><svg viewBox="0 0 24 24"><path d="M4 4h16v16H4V4zm3 3v10l8-5-8-5z"/></svg></div>
-          <h3>Editing</h3>
-          <p>Adobe Premiere Pro, After Effects, and Audition — every combo clip, animation, and voiceover lands here.</p>
-        </div>
-        <div class="perk">
-          <div class="ic"><svg viewBox="0 0 24 24"><path d="M12 4a8 8 0 100 16 8 8 0 000-16zm0 5a3 3 0 110 6 3 3 0 010-6z"/></svg></div>
-          <h3>Client</h3>
-          <p>Feather Client — Fallerfly's Java client of choice. Clean, fast, and every frame shows up on time.</p>
-        </div>
-        <div class="perk">
-          <div class="ic"><svg viewBox="0 0 24 24"><path d="M3 4h18v12H3V4zm2 14h14v2H5v-2zm2-12v8h10V6H7z"/></svg></div>
-          <h3>Desktop</h3>
-          <p>Rainmeter with a custom volume controller — clean between the chaos.</p>
-        </div>
-      </div>
+      </section>
     </div>
   </div>
 
@@ -956,10 +988,32 @@
   <div class="tab" id="tab-help">
     <div class="wrap">
       <div class="help-intro">
-        <p class="eyebrow">Help & FAQ</p>
-        <h2 class="display" style="font-size:clamp(30px,4.4vw,50px)">Questions people<br>actually ask</h2>
-        <p>For everything gameplay-related, the Discord is the fastest answer. Business goes below.</p>
+        <h2 class="display" style="font-size:clamp(30px,4.4vw,50px)">Got a question?</h2>
+        <p>Have something important to ask? Send it below and it goes straight to Fallerfly.</p>
       </div>
+
+      <form class="ask-card" id="askForm" novalidate>
+        <h3>Ask a question</h3>
+        <p>Questions, ideas, and inquiries all land in Fallerfly's inbox. Leave your email or Discord username if you'd like a reply.</p>
+        <div class="ask-grid">
+          <label>Name<input name="name" autocomplete="name" maxlength="80" required></label>
+          <label>Email or Discord (for a reply)<input name="contact" autocomplete="off" maxlength="120" placeholder="you@email.com or Discord username"></label>
+          <label class="full">Topic
+            <select name="topic">
+              <option>Question</option>
+              <option>Video idea</option>
+              <option>Business or collab</option>
+              <option>Something else</option>
+            </select>
+          </label>
+          <label class="full">Message<textarea name="message" maxlength="4000" required></textarea></label>
+          <input class="hp" type="text" name="_honey" tabindex="-1" autocomplete="off" aria-hidden="true">
+        </div>
+        <div class="ask-foot">
+          <button class="btn btn-red" type="submit">Send question</button>
+          <span class="ask-status" id="askStatus" role="status" aria-live="polite"></span>
+        </div>
+      </form>
       <div class="faq-list">
         <details class="faq" open>
           <summary>Business or collab inquiries?</summary>
@@ -993,6 +1047,7 @@
     el.classList.add('active');
     tabs.forEach(function (b) { b.classList.toggle('active', b.dataset.tab === name); });
     if (push) history.replaceState(null, '', '#' + name);
+    document.dispatchEvent(new CustomEvent('tabchange', { detail: name }));
     window.scrollTo({ top: 0, behavior: 'auto' });
   }
   tabs.forEach(function (b) {
@@ -1360,9 +1415,12 @@
 </script>
 <script type="x-shader/x-fragment" id="netherFs">
 precision highp float;
-uniform vec2 uRes; uniform float uTime; uniform float uScroll;
-/* 1.0 = crimson forest (used on the site); 0.0 = the glowstone cavern variant */
-const float uMode=1.0;
+uniform vec2 uRes; uniform float uTime; uniform float uScroll; uniform float uDepth;
+/* uScene picks the world: 0 glowstone cavern, 1 crimson forest, 2 warped forest,
+   3 soul sand valley, 4 basalt deltas, 5 lava sea, 6 the End, 7 amethyst geode. uMode is the geometry family
+   (1 = forest, 0 = cavern) and uGrade is a colour grade. */
+uniform float uMode; uniform float uScene; uniform vec3 uGrade;
+float S(float k){ return 1.0-step(0.5,abs(uScene-k)); }
 
 float hash(vec2 p){p=fract(p*vec2(123.34,456.21));p+=dot(p,p+45.32);return fract(p.x*p.y);}
 float hash3(vec3 p){p=fract(p*0.3183099+0.1);p*=17.0;return fract(p.x*p.y*p.z*(p.x+p.y+p.z));}
@@ -1374,7 +1432,9 @@ vec2 path(float z){ return uMode<0.5 ? vec2(sin(z*0.03)*6.0,0.0) : vec2(sin(z*0.
 float floorH(vec2 xz){
   float f;
   if(uMode<0.5){ float w=abs(xz.x-path(xz.y).x);
-    f=-3.0+3.0*noise(xz*0.09)+1.5*noise(xz*0.23)+max(0.0,w-8.0)*1.3; }
+    if(S(5.0)>0.5) f=w<13.0?-6.0+noise(xz*0.3):-4.0+2.0*noise(xz*0.11)+(w-13.0)*1.1;
+    else if(S(3.0)>0.5) f=-3.0+1.6*noise(xz*0.07)+0.8*noise(xz*0.31)+max(0.0,w-10.0)*1.0;
+    else f=-3.0+3.0*noise(xz*0.09)+1.5*noise(xz*0.23)+max(0.0,w-8.0)*1.3; }
   else { f=-2.0+2.0*noise(xz*0.08)+noise(xz*0.21); }
   return floor(f);
 }
@@ -1383,7 +1443,9 @@ float ceilH(vec2 xz){ float w=abs(xz.x-path(xz.y).x);
 
 /* one glowstone cluster hangs from the cavern roof every 14 blocks */
 vec3 caveLight(float k){ float z=k*14.0+7.0; float x=path(z).x+(hash(vec2(k,1.7))-0.5)*10.0;
-  vec2 c=floor(vec2(x,z)); return vec3(c.x+0.5, ceilH(c)-0.6, c.y+0.5); }
+  vec2 c=floor(vec2(x,z));
+  if(uScene>2.5&&uScene<4.5) return vec3(c.x+0.5, floorH(c)+1.4, c.y+0.5);
+  return vec3(c.x+0.5, ceilH(c)-0.6, c.y+0.5); }
 
 /* one huge crimson fungus per 9x9 patch, kept clear of the camera path */
 void tree(vec2 g, out vec2 tp, out float tf, out float th, out float ok){
@@ -1397,18 +1459,25 @@ float cell(vec3 c){
   vec2 xz=c.xz; float f=floorH(xz);
   if(uMode<0.5){
     float w=abs(c.x-path(c.z).x); float h=hash(xz+0.5);
-    if(h>0.975&&w>3.5) f+=3.0+floor(hash(xz+9.1)*7.0);
+    float pil=S(4.0)>0.5?0.86:(S(3.0)>0.5?0.985:0.975);
     float ce=ceilH(xz);
+    if(h>pil&&w>3.5) f+=S(4.0)>0.5?40.0:3.0+floor(hash(xz+9.1)*7.0);
     if(h<0.07&&w>3.0) ce-=1.0+floor(hash(xz+4.4)*5.0);
     if(c.y<=f||c.y>=ce) return hash3(c)>0.94?3.0:1.0;
     vec3 L=caveLight(floor(c.z/14.0));
-    if(length(c+0.5-L)<2.1&&hash3(c+3.1)>0.3) return 4.0;
-    if(c.y<=-4.0) return 5.0;
+    float lr=(uScene>2.5&&uScene<4.5)?1.3:2.1;
+    if(length(c+0.5-L)<lr&&hash3(c+3.1)>0.3) return 4.0;
+    if(c.y<=-4.0) return S(7.0)>0.5?1.0:5.0;
     return 0.0;
   }
   if(c.y<=f) return c.y==f?2.0:1.0;
-  if(c.y>=28.0) return 1.0;
+  if(c.y>=28.0) return S(6.0)>0.5?0.0:1.0;
   vec2 g=floor(xz/9.0); vec2 tp; float tf,th,ok; tree(g,tp,tf,th,ok);
+  if(S(6.0)>0.5){
+    if(ok>0.5){ vec2 d=abs(xz-tp); float md=max(d.x,d.y);
+      if(md<1.5&&c.y>tf&&c.y<=th+4.0) return 6.0;
+      if(md<0.5&&c.y==th+5.0) return 8.0; }
+    return 0.0; }
   if(ok>0.5){ vec2 d=abs(xz-tp); float md=max(d.x,d.y);
     if(md<0.5&&c.y>tf&&c.y<th-1.0) return 6.0;
     if(c.y>=th-2.0&&c.y<=th){ float r=c.y==th?1.0:2.0; if(md<=r) return hash3(c)>0.85?8.0:7.0; }
@@ -1423,9 +1492,15 @@ vec4 lightAt(int i, vec3 near){
   if(uMode<0.5){ float k=floor(near.z/14.0)+float(i)-1.0; return vec4(caveLight(k),34.0); }
   float fi=float(i); vec2 g=floor(near.xz/9.0)+vec2(mod(fi,3.0)-1.0,floor(fi/3.0)-1.0);
   vec2 tp; float tf,th,ok; tree(g,tp,tf,th,ok);
-  return vec4(tp.x+0.5,th-2.6,tp.y+0.5,ok*9.0);
+  return vec4(tp.x+0.5,S(6.0)>0.5?th+5.5:th-2.6,tp.y+0.5,ok*9.0);
 }
-vec3 lightCol(){ return uMode<0.5?vec3(1.0,0.72,0.38):vec3(1.0,0.5,0.22); }
+vec3 lightCol(){
+  if(S(3.0)>0.5) return vec3(0.30,0.80,1.0);
+  if(S(4.0)>0.5) return vec3(0.42,0.30,0.24);
+  if(S(5.0)>0.5) return vec3(1.0,0.60,0.28);
+  if(S(6.0)>0.5) return vec3(0.85,0.45,1.0);
+  if(S(7.0)>0.5) return vec3(0.75,0.50,1.0);
+  return uMode<0.5?vec3(1.0,0.72,0.38):vec3(1.0,0.5,0.22); }
 
 float shadow(vec3 p, vec3 L){
   vec3 rd=normalize(L-p); float maxd=length(L-p)-1.4;
@@ -1452,7 +1527,7 @@ vec3 embers(vec2 uv,float t,float density,vec3 tint){vec3 c=vec3(0.0);
 
 void main(){
   vec2 uv=(gl_FragCoord.xy-0.5*uRes)/uRes.y; float t=uTime;
-  float z=t*1.5+uScroll*90.0;
+  float z=t*1.5+uDepth;
   vec3 ro=vec3(path(z).x,uMode<0.5?4.2:2.8,z);
   vec3 ta=vec3(path(z+8.0).x,ro.y+(uMode<0.5?1.2:1.6),z+8.0);
   vec3 fw=normalize(ta-ro); vec3 rt=normalize(cross(vec3(0,1,0),fw)); vec3 up=cross(fw,rt);
@@ -1465,6 +1540,12 @@ void main(){
   float dist=id>0.5?dot(tm-td,mask):120.0;
 
   vec3 fogCol=uMode<0.5?vec3(0.12,0.022,0.02):vec3(0.13,0.02,0.03);
+  fogCol=mix(fogCol,vec3(0.02,0.07,0.08),S(2.0));
+  fogCol=mix(fogCol,vec3(0.025,0.055,0.08),S(3.0));
+  fogCol=mix(fogCol,vec3(0.07,0.06,0.065),S(4.0));
+  fogCol=mix(fogCol,vec3(0.16,0.05,0.015),S(5.0));
+  fogCol=mix(fogCol,vec3(0.015,0.01,0.03),S(6.0));
+  fogCol=mix(fogCol,vec3(0.06,0.025,0.09),S(7.0));
   vec3 col=fogCol;
   if(id>0.5){
     vec3 hp=ro+rd*dist; vec3 n=-mask*st;
@@ -1474,15 +1555,27 @@ void main(){
     float a=hash(px+bp.xz*17.0+bp.y*3.1); float b=hash(floor(px/2.0)+bp.zy*5.3);
     vec3 rack=mix(vec3(0.20,0.05,0.05),vec3(0.50,0.15,0.13),a*0.55+b*0.45);
     if(a>0.93) rack=vec3(0.62,0.24,0.20);
+    if(S(3.0)>0.5) rack=mix(vec3(0.20,0.15,0.12),vec3(0.36,0.28,0.21),a*0.6+b*0.4);
+    if(S(4.0)>0.5) rack=mix(vec3(0.16,0.16,0.18),vec3(0.36,0.36,0.40),hash(vec2(px.x,bp.x*3.0+bp.z))*0.7+a*0.3);
     vec3 nyl=mix(vec3(0.42,0.03,0.06),vec3(0.76,0.12,0.14),hash(px*1.7+bp.xz));
-    if(id==1.0){ alb=rack; if(uMode<0.5&&n.y>0.5&&noise(bp.xz*0.15)>0.62&&solid(bp+vec3(0,1,0))<0.5) alb=nyl; }
+    if(S(2.0)>0.5) nyl=mix(vec3(0.05,0.32,0.30),vec3(0.12,0.55,0.48),hash(px*1.7+bp.xz));
+    if(S(6.0)>0.5){ rack=mix(vec3(0.60,0.58,0.40),vec3(0.80,0.78,0.56),a*0.6+b*0.4); nyl=rack; }
+    if(S(7.0)>0.5) rack=mix(vec3(0.35,0.20,0.55),vec3(0.62,0.42,0.82),a*0.6+b*0.4);
+    if(id==1.0){ alb=rack; if(uMode<0.5&&(S(0.0)+S(5.0))>0.5&&n.y>0.5&&noise(bp.xz*0.15)>0.62&&solid(bp+vec3(0,1,0))<0.5) alb=nyl; }
     else if(id==2.0){ alb=rack; if(n.y>0.5) alb=nyl; else if(n.y>-0.5&&px.y>=12.0+floor(hash(vec2(px.x,bp.x+bp.z))*3.0)) alb=nyl; }
     else if(id==3.0){ alb=rack; if(hash(floor(px/2.0)*1.3+bp.xy+bp.z)>0.8&&hash(px+bp.zx)>0.3) alb=vec3(0.92,0.88,0.83); }
-    else if(id==4.0){ alb=mix(vec3(0.80,0.50,0.22),vec3(1.0,0.86,0.52),hash(floor(px/3.0)+bp.xz+bp.y)); emit=alb*2.6; }
+    else if(id==4.0){ float gh=hash(floor(px/3.0)+bp.xz+bp.y);
+      if(S(3.0)>0.5){ float fl=0.7+0.3*sin(t*6.0+gh*30.0); alb=mix(vec3(0.15,0.55,0.75),vec3(0.55,0.95,1.0),gh); emit=alb*2.2*fl; }
+      else if(S(4.0)>0.5){ alb=gh>0.55?vec3(1.0,0.45,0.08):vec3(0.35,0.08,0.03); emit=alb*2.0; }
+      else if(S(7.0)>0.5){ alb=mix(vec3(0.75,0.45,1.0),vec3(1.0,0.82,1.0),gh); emit=alb*2.2; }
+      else { alb=mix(vec3(0.80,0.50,0.22),vec3(1.0,0.86,0.52),gh); emit=alb*2.6; } }
     else if(id==5.0){ float v=noise(px*0.3+vec2(t*0.5,t*0.2)+bp.xz*3.0); alb=mix(vec3(0.95,0.30,0.03),vec3(1.0,0.72,0.2),v); emit=alb*1.8; }
     else if(id==6.0){ if(abs(n.y)>0.5){ float r=max(abs(px.x-7.5),abs(px.y-7.5)); alb=r>5.5?vec3(0.40,0.10,0.20):mix(vec3(0.55,0.20,0.25),vec3(0.70,0.30,0.32),hash(px+bp.xz)); }
-      else alb=mix(vec3(0.26,0.06,0.15),vec3(0.55,0.15,0.28),hash(vec2(px.x,bp.x*7.0+bp.z)))*(0.8+0.2*hash(px+bp.y)); }
-    else if(id==7.0){ alb=mix(vec3(0.36,0.02,0.04),vec3(0.70,0.08,0.09),hash(px+bp.xz*3.0+bp.y)); }
+      else alb=mix(vec3(0.26,0.06,0.15),vec3(0.55,0.15,0.28),hash(vec2(px.x,bp.x*7.0+bp.z)))*(0.8+0.2*hash(px+bp.y));
+      if(S(2.0)>0.5) alb=alb.bgr*vec3(0.55,1.0,0.95)+vec3(0.0,0.05,0.05);
+      if(S(6.0)>0.5) alb=mix(vec3(0.05,0.03,0.08),vec3(0.18,0.10,0.28),hash(px+bp.xz+bp.y)); }
+    else if(id==7.0){ alb=mix(vec3(0.36,0.02,0.04),vec3(0.70,0.08,0.09),hash(px+bp.xz*3.0+bp.y));
+      if(S(2.0)>0.5) alb=mix(vec3(0.03,0.30,0.32),vec3(0.08,0.55,0.52),hash(px+bp.xz*3.0+bp.y)); }
     else {
       /* shroomlight: orange block of round cells, each a warm yellow core inside a darker orange ring */
       vec2 cid=floor(px/4.0); vec2 q=mod(px,4.0)-1.5; float cj=hash(cid+bp.xz*3.1+bp.y);
@@ -1492,7 +1585,8 @@ void main(){
       vec3 mid=mix(vec3(0.95,0.52,0.18),vec3(1.0,0.62,0.25),j);
       vec3 ring=mix(vec3(0.62,0.22,0.07),vec3(0.75,0.30,0.10),j);
       alb=rr<1.6?core:(rr<3.2?mid:ring);
-      emit=alb*mix(0.4,1.1,smoothstep(3.6,0.6,rr)); }
+      emit=alb*mix(0.4,1.1,smoothstep(3.6,0.6,rr));
+      if(S(6.0)>0.5){ alb=mix(vec3(0.9,0.5,1.0),vec3(1.0,0.88,1.0),hash(px+bp.y)); emit=alb*1.8*(0.8+0.2*sin(t*3.0)); } }
 
     /* smooth lighting: vertex ambient occlusion from the 8 neighbours of the face, like the game does */
     vec3 uA=mask.x>0.5?vec3(0,0,1):vec3(1,0,0); vec3 vA=mask.y>0.5?vec3(0,0,1):vec3(0,1,0);
@@ -1516,7 +1610,12 @@ void main(){
       vec3 dv=L.xyz-hp; float d2=dot(dv,dv); float df=max(dot(n,normalize(dv)),0.0)*0.85+0.15;
       float s=i==ni?sh:1.0; lsum+=lightCol()*L.w*df*s/(1.0+d2*(uMode<0.5?0.1:0.22)); }
     vec3 amb=uMode<0.5?vec3(0.07,0.018,0.018):vec3(0.05,0.012,0.02);
-    if(uMode<0.5) amb+=vec3(1.0,0.35,0.05)*exp(-max(hp.y+4.0,0.0)*0.6)*0.5;
+    if(S(2.0)>0.5) amb=vec3(0.02,0.06,0.06);
+    if(S(3.0)>0.5) amb=vec3(0.02,0.045,0.065);
+    if(S(4.0)>0.5) amb=vec3(0.09,0.09,0.10);
+    if(S(6.0)>0.5) amb=vec3(0.13,0.12,0.14);
+    if(S(7.0)>0.5) amb=vec3(0.05,0.03,0.07);
+    if(uMode<0.5) amb+=vec3(1.0,0.35,0.05)*exp(-max(hp.y+4.0,0.0)*0.6)*(S(5.0)>0.5?1.3:(S(3.0)>0.5?0.0:((S(4.0)+S(7.0))>0.5?(S(7.0)>0.5?0.0:0.12):0.5)));
     col=alb*(amb+lsum*0.55)*ao+emit;
     float fogK=mix(0.055,0.028,uScroll);
     col=mix(fogCol,col,exp(-dist*fogK));
@@ -1529,12 +1628,92 @@ void main(){
     float sc=(atan((tt-b)/h)-atan(-b/h))/h;
     col+=lightCol()*sc*L.w*(uMode<0.5?0.012:0.008)*(0.8+0.4*uScroll); }
 
-  col+=embers(uv,t,0.10+uScroll*0.25,uMode<0.5?vec3(1.0,0.5,0.15):vec3(1.0,0.25,0.2))*0.9;
+  vec3 et=uMode<0.5?vec3(1.0,0.5,0.15):vec3(1.0,0.25,0.2);
+  et=mix(et,vec3(0.3,0.9,0.8),S(2.0)); et=mix(et,vec3(0.35,0.85,1.0),S(3.0)); et=mix(et,vec3(0.75,0.72,0.70),S(4.0));
+  et=mix(et,vec3(0.85,0.6,1.0),S(6.0)); et=mix(et,vec3(0.95,0.75,1.0),S(7.0));
+  col+=embers(uv,t,0.10+uScroll*0.25,et)*0.9;
   col*=(uMode<0.5?1.0:1.2)+0.3*uScroll;
+  col*=uGrade;
   col=(col*(2.51*col+0.03))/(col*(2.43*col+0.59)+0.14);
   col*=0.55+0.45*smoothstep(1.35,0.25,length(uv));
   gl_FragColor=vec4(clamp(col,0.0,1.0),1.0);
 }
+</script>
+<script>
+/* ---------- help: question form (FormSubmit sends it to the inbox; no server needed) ---------- */
+(function () {
+  var f = document.getElementById('askForm');
+  if (!f) { return; }
+  var st = document.getElementById('askStatus');
+  function say(msg, cls) { st.textContent = msg; st.className = 'ask-status' + (cls ? ' ' + cls : ''); }
+  f.addEventListener('submit', function (e) {
+    e.preventDefault();
+    if (f._honey.value) { return; }
+    if (!f.name.value.trim() || !f.message.value.trim()) { say('Add your name and a message first.', 'err'); return; }
+    var btn = f.querySelector('button'); btn.disabled = true; say('Sending…');
+    fetch('https://formsubmit.co/ajax/fallerfly@gmail.com', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+      body: JSON.stringify({
+        name: f.name.value.trim(), reply_to: f.contact.value.trim() || '(none left)', topic: f.topic.value,
+        message: f.message.value.trim(),
+        _subject: 'fallerfly.com: ' + f.topic.value + ' from ' + f.name.value.trim(),
+        _template: 'table', _honey: ''
+      })
+    }).then(function (r) { return r.json(); }).then(function (d) {
+      if (d && (d.success === true || d.success === 'true')) { f.reset(); say('Sent! Thanks for reaching out.', 'ok'); }
+      else { throw new Error('send failed'); }
+    }).catch(function () {
+      say('Couldn\'t send right now. Try again, or email fallerfly@gmail.com.', 'err');
+    }).then(function () { btn.disabled = false; });
+  });
+})();
+
+/* ---------- smooth scrolling ----------
+   Mouse wheels move the page in fixed jumps per notch. This glides the whole
+   page toward where the wheel points instead. Touch, keyboard and the
+   scrollbar keep the browser's own behaviour. */
+(function () {
+  var root = document.documentElement;
+  var target = window.scrollY, pos = window.scrollY, running = false;
+  function maxY() { return root.scrollHeight - window.innerHeight; }
+  function scrollsItself(el, dy) {
+    for (; el && el !== document.body && el !== root; el = el.parentElement) {
+      var cs = getComputedStyle(el);
+      if (/(auto|scroll)/.test(cs.overflowY) && el.scrollHeight > el.clientHeight) {
+        if ((dy > 0 && el.scrollTop + el.clientHeight < el.scrollHeight - 1) || (dy < 0 && el.scrollTop > 0)) { return true; }
+      }
+      if (el.tagName === 'TEXTAREA' || el.tagName === 'SELECT' || el.tagName === 'IFRAME') { return true; }
+    }
+    return false;
+  }
+  // A critically damped spring: the page speeds up gently, then eases to a stop,
+  // so a single notch reads as one smooth glide rather than a jump.
+  var vel = 0, lastT = 0, W = 10;  // W sets the pace; ~0.5s per notch
+  function step(now) {
+    // something else moved the page mid-glide (a tab switch, a link): let it win
+    if (Math.abs(window.scrollY - pos) > 3) { pos = target = window.scrollY; vel = 0; running = false; return; }
+    var dt = Math.min(0.05, (now - lastT) / 1000 || 0.016); lastT = now;
+    var acc = W * W * (target - pos) - 2 * W * vel;
+    vel += acc * dt; pos += vel * dt;
+    if (Math.abs(target - pos) < 0.5 && Math.abs(vel) < 5) { pos = target; vel = 0; window.scrollTo({ top: pos, behavior: 'instant' }); running = false; return; }
+    window.scrollTo({ top: pos, behavior: 'instant' });
+    requestAnimationFrame(step);
+  }
+  window.addEventListener('wheel', function (e) {
+    if (e.ctrlKey || e.defaultPrevented) { return; }
+    var dy = e.deltaY;
+    if (e.deltaMode === 1) { dy *= 40; } else if (e.deltaMode === 2) { dy *= window.innerHeight; }
+    if (Math.abs(e.deltaX) > Math.abs(dy) || scrollsItself(e.target, dy)) { return; }
+    if (maxY() <= 0) { return; }  // nothing to scroll here (e.g. shown inside a taller frame)
+    e.preventDefault();
+    if (!running) { pos = target = window.scrollY; vel = 0; }
+    target = Math.max(0, Math.min(maxY(), target + dy * 1.2));
+    if (!running) { running = true; lastT = performance.now(); requestAnimationFrame(step); }
+  }, { passive: false });
+  // keep in sync when something else moves the page (keys, scrollbar, tab switch)
+  window.addEventListener('scroll', function () { if (!running) { pos = target = window.scrollY; } }, { passive: true });
+})();
 </script>
 <script>
 /* ---------- crimson forest background ----------
@@ -1559,6 +1738,30 @@ void main(){
   var uRes = gl.getUniformLocation(prog, 'uRes');
   var uTime = gl.getUniformLocation(prog, 'uTime');
   var uScroll = gl.getUniformLocation(prog, 'uScroll');
+  var uMode = gl.getUniformLocation(prog, 'uMode');
+  var uScene = gl.getUniformLocation(prog, 'uScene');
+  var uDepth = gl.getUniformLocation(prog, 'uDepth');
+  var uGrade = gl.getUniformLocation(prog, 'uGrade');
+
+  /* each tab gets its own Nether world (scene ids match the shader) plus a colour grade */
+  var MOODS = {
+    home:      { mode: 1, grade: [1.00, 1.00, 1.00] },  // crimson forest
+    youtube:   { mode: 2, grade: [1.00, 1.05, 1.05] },  // warped forest
+    discord:   { mode: 3, grade: [1.00, 1.10, 1.20] },  // soul sand valley
+    setup:     { mode: 6, grade: [1.00, 1.00, 1.00] },  // the End
+    resources: { mode: 4, grade: [1.05, 1.05, 1.12] },  // basalt deltas
+    help:      { mode: 7, grade: [1.00, 1.00, 1.00] }   // amethyst geode
+  };
+  var mode = 1, grade = [1, 1, 1], gradeTarget = [1, 1, 1], swapTimer = 0;
+  // switch the world at the same instant the tab's content swaps, and draw it right away
+  function setMood(name) {
+    var m = MOODS[name] || MOODS.home;
+    mode = m.mode; grade = m.grade.slice(); gradeTarget = m.grade.slice();
+    if (t0) { draw(performance.now()); }  // t0 is set once the renderer below is ready
+  }
+  var activeTab = document.querySelector('.tab.active');
+  setMood(activeTab ? activeTab.id.replace('tab-', '') : 'home');
+  document.addEventListener('tabchange', function (e) { setMood(e.detail); });
   gl.bindBuffer(gl.ARRAY_BUFFER, gl.createBuffer());
   gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW);
   var aLoc = gl.getAttribLocation(prog, 'a');
@@ -1574,25 +1777,29 @@ void main(){
   window.addEventListener('resize', resize);
   resize();
 
-  var target = 0, smooth = 0;
-  function readScroll() {
-    var max = document.documentElement.scrollHeight - window.innerHeight;
-    target = max > 0 ? Math.min(1, Math.max(0, window.scrollY / max)) : 0;
-  }
-  window.addEventListener('scroll', readScroll, { passive: true });
-  readScroll();
-
+  /* Scrolling moves the camera forward at a fixed rate (one block per 80px),
+     read straight from the page each frame so it stays locked to the content. */
+  var PX_PER_BLOCK = 80;
   var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  var t0 = performance.now(), last = 0;
-  function frame(now) {
-    requestAnimationFrame(frame);
-    if (now - last < 33) { return; }  // ~30fps is plenty for a slow drift
-    last = now;
-    smooth += (target - smooth) * 0.08;
+  var t0 = performance.now(), last = 0, lastY = -1;
+  function draw(now) {
+    var y = window.scrollY;
+    var max = document.documentElement.scrollHeight - window.innerHeight;
     gl.uniform2f(uRes, canvas.width, canvas.height);
     gl.uniform1f(uTime, (now - t0) / 1000 * (reduce ? 0.1 : 1));
-    gl.uniform1f(uScroll, smooth);
+    gl.uniform1f(uScroll, max > 0 ? Math.min(1, Math.max(0, y / max)) : 0);
+    gl.uniform1f(uDepth, y / PX_PER_BLOCK);
+    gl.uniform1f(uMode, (mode === 1 || mode === 2 || mode === 6) ? 1 : 0);
+    gl.uniform1f(uScene, mode);
+    gl.uniform3f(uGrade, grade[0], grade[1], grade[2]);
     gl.drawArrays(gl.TRIANGLES, 0, 3);
+    last = now; lastY = y;
+  }
+  function frame(now) {
+    requestAnimationFrame(frame);
+    // full frame rate while the page is moving; ~30fps for the idle drift
+    if (window.scrollY === lastY && now - last < 33) { return; }
+    draw(now);
   }
   requestAnimationFrame(frame);
 })();
